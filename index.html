@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>SurfFit - Pop-Up Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Fullscreen Camera Layer -->
+    <div id="camera-layer">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="skeleton-canvas"></canvas>
+        <div id="frame-border"></div>
+    </div>
+
+    <!-- Overlay UI -->
+    <div id="overlay-ui">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="app-badge">
+                <span class="logo">🏄‍♂️</span>
+                <span class="title">SurfFit</span>
+            </div>
+            <div class="status-badge" id="status-badge">
+                <span class="status-icon">⏳</span>
+                <span class="status-text" id="status-text">Initialisiere...</span>
+            </div>
+        </div>
+
+        <!-- Center Timer -->
+        <div class="center-content">
+            <div class="timer-container" id="timer-container">
+                <div class="timer-value" id="timer-value">0.00</div>
+                <div class="timer-unit">Sekunden</div>
+            </div>
+            <div class="pose-indicator" id="pose-indicator">Warte auf Position...</div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bottom-bar">
+            <div class="instruction-badge" id="instruction-badge">
+                📷 Positioniere die Kamera so, dass dein ganzer Körper sichtbar ist
+            </div>
+            <button class="btn-reset" id="btn-reset">↻ Reset</button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loading-text">Lade...</div>
+        </div>
+    </div>
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.0/dist/pose-detection.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
