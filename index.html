@@ -2,127 +2,323 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
-    <title>SurfFit - Pop-Up Timer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>SurfFit - Train Your Pop-Up</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 20% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(129, 140, 248, 0.12) 0%, transparent 50%),
+                        radial-gradient(ellipse at 40% 70%, rgba(167, 139, 250, 0.1) 0%, transparent 40%);
+            animation: gradient-shift 15s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% {
+                transform: translate(-5%, -5%) rotate(3deg);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 60px 24px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            margin-bottom: 56px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .brand-mark {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent) 0%, #818cf8 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-mark svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--bg-dark);
+        }
+
+        .brand-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .headline {
+            font-size: clamp(2.2em, 8vw, 3em);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 16px;
+        }
+
+        .headline span {
+            background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .models {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .model-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .model-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .model-card:active {
+            transform: scale(0.98);
+        }
+
+        .model-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .model-icon.lightning {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        .model-icon.precision {
+            background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        }
+
+        .model-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .model-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .model-name {
+            font-size: 1.15em;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .model-desc {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .model-arrow {
+            width: 20px;
+            height: 20px;
+            opacity: 0.4;
+            flex-shrink: 0;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .model-card:hover .model-arrow {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        .footer {
+            margin-top: 56px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: var(--accent);
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            .header {
+                margin-bottom: 40px;
+            }
+
+            .model-card {
+                padding: 20px;
+            }
+
+            .model-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Fullscreen Camera Layer -->
-    <div id="camera-layer">
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="skeleton-canvas"></canvas>
-        <div id="frame-border"></div>
+    <div class="container">
+        <header class="header">
+            <div class="brand">
+                <div class="brand-mark">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 3c-1.5 2-3.5 3.5-6 4.5-2.5-1-4.5-2.5-6-4.5-1 3.5-.5 6.5 1.5 9C7 14 4 16.5 2 21c4-2 8-3 12-3s8 1 12 3c-2-4.5-5-7-8.5-8.5 2-2.5 2.5-5.5 1.5-9z"/>
+                    </svg>
+                </div>
+                <span class="brand-name">SurfFit</span>
+            </div>
+            <h1 class="headline">Train your<br><span>Pop-Up</span></h1>
+            <p class="tagline">Measure your lying-to-standing time with real-time pose detection. No equipment needed.</p>
+        </header>
+
+        <div class="models">
+            <a href="movenet/" class="model-card">
+                <div class="model-icon lightning">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                </div>
+                <div class="model-content">
+                    <h2 class="model-name">Lightning Mode</h2>
+                    <p class="model-desc">Fast detection, lower latency. Best for quick sessions.</p>
+                </div>
+                <svg class="model-arrow" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </a>
+
+            <a href="blazepose/" class="model-card">
+                <div class="model-icon precision">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </div>
+                <div class="model-content">
+                    <h2 class="model-name">Precision Mode</h2>
+                    <p class="model-desc">More accurate tracking. Optimized for mobile.</p>
+                </div>
+                <svg class="model-arrow" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </a>
+        </div>
+
+        <footer class="footer">
+            <span>Powered by TensorFlow.js</span>
+            <div class="tech-stack">
+                <a href="https://github.com/freegroup/surfpose" target="_blank">GitHub</a>
+            </div>
+        </footer>
     </div>
-
-    <!-- Overlay UI -->
-    <div id="overlay-ui">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="app-badge">
-                <span class="logo">🏄‍♂️</span>
-                <span class="title">SurfFit</span>
-            </div>
-            <div class="status-badge" id="status-badge">
-                <span class="status-icon">⏳</span>
-                <span class="status-text" id="status-text">Initialisiere...</span>
-            </div>
-        </div>
-
-        <!-- Center Timer -->
-        <div class="center-content">
-            <div class="timer-container" id="timer-container">
-                <div class="timer-value" id="timer-value">0.00</div>
-                <div class="timer-unit">Sekunden</div>
-            </div>
-            <div class="pose-indicator" id="pose-indicator">Warte auf Position...</div>
-        </div>
-
-        <!-- Bottom Bar -->
-        <div class="bottom-bar">
-            <div class="instruction-badge" id="instruction-badge">
-                📷 Positioniere die Kamera so, dass dein ganzer Körper sichtbar ist
-            </div>
-            <div class="button-row">
-                <button class="btn-camera" id="btn-camera">📷 Kamera wechseln</button>
-                <button class="btn-reset" id="btn-reset">↻ Reset</button>
-                <button class="btn-debug" id="btn-debug">🐛</button>
-            </div>
-        </div>
-
-        <!-- Debug Panel -->
-        <div class="debug-panel hidden" id="debug-panel">
-            <div class="debug-header">
-                <span>🐛 Debug Info</span>
-                <button class="debug-close" id="debug-close">✕</button>
-            </div>
-            <div class="debug-content">
-                <div class="debug-row">
-                    <span>Backend</span>
-                    <span id="debug-backend">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Video</span>
-                    <span id="debug-video">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Canvas</span>
-                    <span id="debug-canvas">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>FPS</span>
-                    <span id="debug-fps">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Poses</span>
-                    <span id="debug-poses">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Keypoints</span>
-                    <span id="debug-keypoints">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Pose</span>
-                    <span id="debug-pose">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Head Y</span>
-                    <span id="debug-head">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Feet Y</span>
-                    <span id="debug-feet">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>V-Diff</span>
-                    <span id="debug-vdiff">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Angle</span>
-                    <span id="debug-angle">-</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <div class="loading-text" id="loading-text">Lade...</div>
-        </div>
-    </div>
-
-    <!-- TensorFlow.js - kompatible Versionen -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.17.0/dist/tf-core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.17.0/dist/tf-converter.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.17.0/dist/tf-backend-webgl.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
-    <script src="app.js"></script>
 </body>
 </html>
