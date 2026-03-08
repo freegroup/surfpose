@@ -21,19 +21,14 @@ const KEYPOINTS = {
     RIGHT_ANKLE: 16
 };
 
+// Only draw skeleton connections between relevant keypoints
 const SKELETON_CONNECTIONS = [
     [KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.RIGHT_SHOULDER],
-    [KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.LEFT_ELBOW],
-    [KEYPOINTS.RIGHT_SHOULDER, KEYPOINTS.RIGHT_ELBOW],
-    [KEYPOINTS.LEFT_ELBOW, KEYPOINTS.LEFT_WRIST],
-    [KEYPOINTS.RIGHT_ELBOW, KEYPOINTS.RIGHT_WRIST],
     [KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.LEFT_HIP],
     [KEYPOINTS.RIGHT_SHOULDER, KEYPOINTS.RIGHT_HIP],
     [KEYPOINTS.LEFT_HIP, KEYPOINTS.RIGHT_HIP],
-    [KEYPOINTS.LEFT_HIP, KEYPOINTS.LEFT_KNEE],
-    [KEYPOINTS.RIGHT_HIP, KEYPOINTS.RIGHT_KNEE],
-    [KEYPOINTS.LEFT_KNEE, KEYPOINTS.LEFT_ANKLE],
-    [KEYPOINTS.RIGHT_KNEE, KEYPOINTS.RIGHT_ANKLE]
+    [KEYPOINTS.LEFT_HIP, KEYPOINTS.LEFT_ANKLE],
+    [KEYPOINTS.RIGHT_HIP, KEYPOINTS.RIGHT_ANKLE]
 ];
 
 // ============================================
@@ -372,13 +367,25 @@ async function detectPose() {
     animationFrameId = requestAnimationFrame(detectPose);
 }
 
+// Only draw keypoints relevant for pose detection (excluding nose - we draw head center instead)
+const RELEVANT_KEYPOINTS = [
+    KEYPOINTS.LEFT_SHOULDER,
+    KEYPOINTS.RIGHT_SHOULDER,
+    KEYPOINTS.LEFT_HIP,
+    KEYPOINTS.RIGHT_HIP,
+    KEYPOINTS.LEFT_ANKLE,
+    KEYPOINTS.RIGHT_ANKLE
+];
+
 function drawKeypoints(keypoints) {
     const color = getSkeletonColor();
 
-    keypoints.forEach((kp) => {
+    // Draw body keypoints
+    RELEVANT_KEYPOINTS.forEach((index) => {
+        const kp = keypoints[index];
         if (kp.score > 0.2) {
             ctx.beginPath();
-            ctx.arc(kp.x, kp.y, 8, 0, 2 * Math.PI);
+            ctx.arc(kp.x, kp.y, 10, 0, 2 * Math.PI);
             ctx.fillStyle = color;
             ctx.fill();
             ctx.strokeStyle = 'white';
@@ -386,6 +393,18 @@ function drawKeypoints(keypoints) {
             ctx.stroke();
         }
     });
+
+    // Draw head center point
+    const headCenter = getHeadCenter(keypoints);
+    if (headCenter && headCenter.score > 0.2) {
+        ctx.beginPath();
+        ctx.arc(headCenter.x, headCenter.y, 10, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
 }
 
 function drawSkeleton(keypoints) {
@@ -404,6 +423,20 @@ function drawSkeleton(keypoints) {
             ctx.stroke();
         }
     });
+
+    // Draw head center to shoulder center connection
+    const headCenter = getHeadCenter(keypoints);
+    const leftShoulder = keypoints[KEYPOINTS.LEFT_SHOULDER];
+    const rightShoulder = keypoints[KEYPOINTS.RIGHT_SHOULDER];
+
+    if (headCenter && leftShoulder.score > 0.2 && rightShoulder.score > 0.2) {
+        const shoulderCenterX = (leftShoulder.x + rightShoulder.x) / 2;
+        const shoulderCenterY = (leftShoulder.y + rightShoulder.y) / 2;
+        ctx.beginPath();
+        ctx.moveTo(headCenter.x, headCenter.y);
+        ctx.lineTo(shoulderCenterX, shoulderCenterY);
+        ctx.stroke();
+    }
 }
 
 function getSkeletonColor() {
@@ -424,8 +457,29 @@ function getSkeletonColor() {
 // ============================================
 // POSE ANALYSIS
 // ============================================
-function analyzePose(keypoints) {
+function getHeadCenter(keypoints) {
     const nose = keypoints[KEYPOINTS.NOSE];
+    const leftEar = keypoints[KEYPOINTS.LEFT_EAR];
+    const rightEar = keypoints[KEYPOINTS.RIGHT_EAR];
+    const minScore = 0.2;
+
+    // Collect valid head points
+    const validPoints = [];
+    if (nose.score > minScore) validPoints.push(nose);
+    if (leftEar.score > minScore) validPoints.push(leftEar);
+    if (rightEar.score > minScore) validPoints.push(rightEar);
+
+    if (validPoints.length === 0) return null;
+
+    // Calculate average position
+    const avgX = validPoints.reduce((sum, p) => sum + p.x, 0) / validPoints.length;
+    const avgY = validPoints.reduce((sum, p) => sum + p.y, 0) / validPoints.length;
+    const avgScore = validPoints.reduce((sum, p) => sum + p.score, 0) / validPoints.length;
+
+    return { x: avgX, y: avgY, score: avgScore };
+}
+
+function analyzePose(keypoints) {
     const leftShoulder = keypoints[KEYPOINTS.LEFT_SHOULDER];
     const rightShoulder = keypoints[KEYPOINTS.RIGHT_SHOULDER];
     const leftHip = keypoints[KEYPOINTS.LEFT_HIP];
@@ -433,10 +487,13 @@ function analyzePose(keypoints) {
     const leftAnkle = keypoints[KEYPOINTS.LEFT_ANKLE];
     const rightAnkle = keypoints[KEYPOINTS.RIGHT_ANKLE];
 
+    // Get head center from nose + ears
+    const headCenter = getHeadCenter(keypoints);
+
     // Check confidence - niedrigerer Threshold für Mobile
     const minScore = 0.2;
     const hasRequiredPoints =
-        nose.score > minScore &&
+        headCenter && headCenter.score > minScore &&
         leftHip.score > minScore && rightHip.score > minScore &&
         leftAnkle.score > minScore && rightAnkle.score > minScore;
 
@@ -446,8 +503,8 @@ function analyzePose(keypoints) {
         return;
     }
 
-    // Calculate positions
-    const headY = nose.y;
+    // Calculate positions using head center
+    const headY = headCenter.y;
     const hipY = (leftHip.y + rightHip.y) / 2;
     const feetY = (leftAnkle.y + rightAnkle.y) / 2;
     const verticalDiff = feetY - headY;
