@@ -61,7 +61,18 @@ const MAX_TIME = 20; // Maximale Zeit in Sekunden
 let video, canvas, ctx;
 let frameBorder, timerContainer, timerValue, poseIndicator;
 let statusBadge, statusIcon, statusText, instructionBadge;
-let loadingOverlay, loadingText, btnReset;
+let loadingOverlay, loadingText, btnReset, btnCamera;
+
+let useFrontCamera = true; // Toggle für Kamera
+
+// Debug Panel Elements
+let debugPanel, debugBackend, debugVideo, debugCanvas, debugFps;
+let debugPoses, debugKeypoints, debugPose, debugHead, debugFeet, debugVdiff, debugAngle;
+
+// FPS Tracking
+let lastFrameTime = 0;
+let frameCount = 0;
+let fps = 0;
 
 // ============================================
 // INITIALIZATION
@@ -82,6 +93,21 @@ function initDOMElements() {
     loadingOverlay = document.getElementById('loading-overlay');
     loadingText = document.getElementById('loading-text');
     btnReset = document.getElementById('btn-reset');
+    btnCamera = document.getElementById('btn-camera');
+
+    // Debug Panel
+    debugPanel = document.getElementById('debug-panel');
+    debugBackend = document.getElementById('debug-backend');
+    debugVideo = document.getElementById('debug-video');
+    debugCanvas = document.getElementById('debug-canvas');
+    debugFps = document.getElementById('debug-fps');
+    debugPoses = document.getElementById('debug-poses');
+    debugKeypoints = document.getElementById('debug-keypoints');
+    debugPose = document.getElementById('debug-pose');
+    debugHead = document.getElementById('debug-head');
+    debugFeet = document.getElementById('debug-feet');
+    debugVdiff = document.getElementById('debug-vdiff');
+    debugAngle = document.getElementById('debug-angle');
 }
 
 async function init() {
@@ -90,29 +116,70 @@ async function init() {
     // Reset button
     btnReset.addEventListener('click', resetApp);
 
+    // Camera switch button
+    btnCamera.addEventListener('click', switchCamera);
+
+    // Debug toggle
+    const btnDebug = document.getElementById('btn-debug');
+    const debugClose = document.getElementById('debug-close');
+    btnDebug.addEventListener('click', () => debugPanel.classList.toggle('hidden'));
+    debugClose.addEventListener('click', () => debugPanel.classList.add('hidden'));
+
     try {
         // Initialize TensorFlow
         loadingText.textContent = 'Initialisiere TensorFlow.js...';
         await tf.ready();
-        console.log('TensorFlow.js Backend:', tf.getBackend());
+        const backend = tf.getBackend();
+        console.log('TensorFlow.js Backend:', backend);
+        debugBackend.textContent = backend;
 
-        // Setup camera
+        // Setup camera - mit Fallback für Mobile
         loadingText.textContent = 'Starte Kamera...';
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                facingMode: 'user'
-            },
-            audio: false
-        });
+
+        // Versuche verschiedene Auflösungen
+        let stream;
+        const facingMode = useFrontCamera ? 'user' : 'environment';
+        const videoConstraints = [
+            { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode },
+            { width: { ideal: 640 }, height: { ideal: 480 }, facingMode },
+            { facingMode } // Fallback: Browser wählt selbst
+        ];
+
+        for (const constraints of videoConstraints) {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: constraints,
+                    audio: false
+                });
+                console.log('Camera started with:', constraints);
+                break;
+            } catch (e) {
+                console.log('Failed with constraints:', constraints, e.message);
+            }
+        }
+
+        if (!stream) {
+            throw new Error('Keine Kamera verfügbar');
+        }
 
         video.srcObject = stream;
+
+        // Warte bis Video-Metadaten geladen sind
+        await new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+                console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+                resolve();
+            };
+        });
+
         await video.play();
 
         // Set canvas size to match video
         updateCanvasSize();
         window.addEventListener('resize', updateCanvasSize);
+
+        // Debug: Zeige Video-Info
+        console.log('Video ready:', video.videoWidth, 'x', video.videoHeight);
 
         // Load MoveNet
         loadingText.textContent = 'Lade MoveNet Model...';
@@ -212,29 +279,107 @@ function resetApp() {
     setState(AppState.READY);
 }
 
+async function switchCamera() {
+    // Stoppe aktuelle Erkennung
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+
+    // Stoppe aktuellen Video-Stream
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+    }
+
+    // Toggle Kamera
+    useFrontCamera = !useFrontCamera;
+
+    // Mirror-Effekt nur für Front-Kamera
+    video.style.transform = useFrontCamera ? 'scaleX(-1)' : 'scaleX(1)';
+
+    // Zeige Loading
+    loadingOverlay.classList.remove('hidden');
+    loadingText.textContent = 'Wechsle Kamera...';
+
+    try {
+        const facingMode = useFrontCamera ? 'user' : 'environment';
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode },
+            audio: false
+        });
+
+        video.srcObject = stream;
+        await new Promise((resolve) => {
+            video.onloadedmetadata = resolve;
+        });
+        await video.play();
+
+        updateCanvasSize();
+        loadingOverlay.classList.add('hidden');
+        resetApp();
+        detectPose();
+
+    } catch (error) {
+        console.error('Camera switch error:', error);
+        loadingText.textContent = 'Kamera-Fehler: ' + error.message;
+    }
+}
+
 // ============================================
 // POSE DETECTION
 // ============================================
 async function detectPose() {
-    if (!detector) return;
+    if (!detector || !video.videoWidth) return;
+
+    // FPS calculation
+    frameCount++;
+    const now = performance.now();
+    if (now - lastFrameTime >= 1000) {
+        fps = frameCount;
+        frameCount = 0;
+        lastFrameTime = now;
+        debugFps.textContent = fps;
+    }
 
     const poses = await detector.estimatePoses(video);
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Update debug panel
+    debugVideo.textContent = `${video.videoWidth}×${video.videoHeight}`;
+    debugCanvas.textContent = `${canvas.width}×${canvas.height}`;
+    debugPoses.textContent = poses.length;
+
     if (poses.length > 0) {
         const pose = poses[0];
         const keypoints = pose.keypoints;
 
-        // Scale keypoints to canvas size
-        const scaleX = canvas.width / video.videoWidth;
-        const scaleY = canvas.height / video.videoHeight;
+        // Debug: Anzahl gültiger Keypoints
+        const validKeypoints = keypoints.filter(kp => kp.score > 0.3).length;
+        debugKeypoints.textContent = `${validKeypoints}/17`;
+
+        // Scale keypoints to canvas size - berücksichtige object-fit: cover
+        const videoAspect = video.videoWidth / video.videoHeight;
+        const canvasAspect = canvas.width / canvas.height;
+
+        let scaleX, scaleY, offsetX = 0, offsetY = 0;
+
+        if (canvasAspect > videoAspect) {
+            // Canvas ist breiter - Video wird horizontal gecroppt
+            scaleX = canvas.width / video.videoWidth;
+            scaleY = scaleX;
+            offsetY = (canvas.height - video.videoHeight * scaleY) / 2;
+        } else {
+            // Canvas ist höher - Video wird vertikal gecroppt
+            scaleY = canvas.height / video.videoHeight;
+            scaleX = scaleY;
+            offsetX = (canvas.width - video.videoWidth * scaleX) / 2;
+        }
 
         const scaledKeypoints = keypoints.map(kp => ({
             ...kp,
-            x: canvas.width - (kp.x * scaleX), // Mirror X
-            y: kp.y * scaleY
+            x: canvas.width - (kp.x * scaleX + offsetX), // Mirror X
+            y: kp.y * scaleY + offsetY
         }));
 
         // Draw skeleton
@@ -331,6 +476,7 @@ function analyzePose(keypoints) {
 
     if (!hasRequiredPoints) {
         currentPose = 'unknown';
+        debugPose.textContent = 'unknown';
         return;
     }
 
@@ -346,6 +492,12 @@ function analyzePose(keypoints) {
     const hipX = (leftHip.x + rightHip.x) / 2;
     const torsoAngle = Math.atan2(Math.abs(hipX - shoulderX), Math.abs(hipY - shoulderY)) * (180 / Math.PI);
 
+    // Update debug panel
+    debugHead.textContent = Math.round(headY);
+    debugFeet.textContent = Math.round(feetY);
+    debugVdiff.textContent = Math.round(verticalDiff);
+    debugAngle.textContent = torsoAngle.toFixed(1) + '°';
+
     // Determine pose
     const heightThreshold = canvas.height * 0.25; // 25% of screen height
 
@@ -356,6 +508,9 @@ function analyzePose(keypoints) {
     } else {
         currentPose = 'transition';
     }
+
+    // Update debug pose
+    debugPose.textContent = currentPose;
 
     // State machine logic
     handleStateTransition();

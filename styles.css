@@ -9,8 +9,10 @@
     --color-active: #f59e0b;     /* Gelb/Orange - Aktiv/Messend */
     --color-standing: #3b82f6;   /* Blau - Stehend */
     --color-timeout: #ef4444;    /* Rot - Timeout */
-    --glass-bg: rgba(0, 0, 0, 0.5);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --text-color: #1a1a1a;
+    --text-muted: #666666;
 }
 
 html, body {
@@ -137,6 +139,7 @@ html, body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
+    color: var(--text-color);
 }
 
 .app-badge .logo {
@@ -160,6 +163,7 @@ html, body {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     font-size: 0.9em;
+    color: var(--text-color);
     transition: all 0.3s ease;
 }
 
@@ -191,26 +195,26 @@ html, body {
     text-align: center;
     padding: 24px 48px;
     border-radius: 24px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
     transition: all 0.3s ease;
 }
 
 .timer-container.active {
     border-color: var(--color-active);
-    box-shadow: 0 0 40px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
 }
 
 .timer-container.success {
     border-color: var(--color-ready);
-    box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
 }
 
 .timer-container.timeout {
     border-color: var(--color-timeout);
-    box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.4);
 }
 
 .timer-value {
@@ -219,11 +223,12 @@ html, body {
     font-family: 'SF Mono', 'Fira Code', monospace;
     line-height: 1;
     letter-spacing: -2px;
+    color: var(--text-color);
 }
 
 .timer-unit {
     font-size: 0.9em;
-    opacity: 0.6;
+    color: var(--text-muted);
     margin-top: 4px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -238,6 +243,7 @@ html, body {
     border: 1px solid var(--glass-border);
     font-size: 1.1em;
     font-weight: 500;
+    color: var(--text-color);
 }
 
 .pose-indicator.lying {
@@ -268,16 +274,23 @@ html, body {
     font-size: 0.85em;
     text-align: center;
     max-width: 400px;
+    color: var(--text-color);
 }
 
-.btn-reset {
+.button-row {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-reset,
+.btn-camera {
     padding: 12px 28px;
     border-radius: 50px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    color: white;
+    color: var(--text-color);
     font-size: 1em;
     font-weight: 500;
     cursor: pointer;
@@ -285,12 +298,99 @@ html, body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.btn-reset:hover {
-    background: rgba(255, 255, 255, 0.2);
+.btn-reset:hover,
+.btn-camera:hover {
+    background: rgba(255, 255, 255, 0.9);
 }
 
-.btn-reset:active {
+.btn-reset:active,
+.btn-camera:active,
+.btn-debug:active {
     transform: scale(0.96);
+}
+
+.btn-debug {
+    padding: 12px 16px;
+    border-radius: 50px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-color);
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================
+   DEBUG PANEL
+   ============================================ */
+.debug-panel {
+    position: fixed;
+    top: 80px;
+    right: 16px;
+    width: 200px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    font-size: 0.8em;
+    z-index: 100;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.debug-panel.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+}
+
+.debug-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--glass-border);
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.debug-close {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0;
+    line-height: 1;
+}
+
+.debug-content {
+    padding: 10px 14px;
+}
+
+.debug-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.debug-row:last-child {
+    border-bottom: none;
+}
+
+.debug-row span:first-child {
+    color: var(--text-muted);
+}
+
+.debug-row span:last-child {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-color);
+    font-weight: 500;
 }
 
 /* ============================================
@@ -317,12 +417,16 @@ html, body {
 
 .loading-content {
     text-align: center;
+    background: var(--glass-bg);
+    padding: 40px;
+    border-radius: 20px;
+    color: var(--text-color);
 }
 
 .spinner {
     width: 48px;
     height: 48px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
+    border: 3px solid rgba(0, 0, 0, 0.1);
     border-top-color: var(--color-ready);
     border-radius: 50%;
     animation: spin 1s linear infinite;
@@ -335,7 +439,7 @@ html, body {
 
 .loading-text {
     font-size: 1em;
-    opacity: 0.8;
+    color: var(--text-muted);
 }
 
 /* ============================================

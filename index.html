@@ -48,7 +48,65 @@
             <div class="instruction-badge" id="instruction-badge">
                 📷 Positioniere die Kamera so, dass dein ganzer Körper sichtbar ist
             </div>
-            <button class="btn-reset" id="btn-reset">↻ Reset</button>
+            <div class="button-row">
+                <button class="btn-camera" id="btn-camera">📷 Kamera wechseln</button>
+                <button class="btn-reset" id="btn-reset">↻ Reset</button>
+                <button class="btn-debug" id="btn-debug">🐛</button>
+            </div>
+        </div>
+
+        <!-- Debug Panel -->
+        <div class="debug-panel hidden" id="debug-panel">
+            <div class="debug-header">
+                <span>🐛 Debug Info</span>
+                <button class="debug-close" id="debug-close">✕</button>
+            </div>
+            <div class="debug-content">
+                <div class="debug-row">
+                    <span>Backend</span>
+                    <span id="debug-backend">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Video</span>
+                    <span id="debug-video">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Canvas</span>
+                    <span id="debug-canvas">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>FPS</span>
+                    <span id="debug-fps">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Poses</span>
+                    <span id="debug-poses">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Keypoints</span>
+                    <span id="debug-keypoints">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Pose</span>
+                    <span id="debug-pose">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Head Y</span>
+                    <span id="debug-head">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Feet Y</span>
+                    <span id="debug-feet">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>V-Diff</span>
+                    <span id="debug-vdiff">-</span>
+                </div>
+                <div class="debug-row">
+                    <span>Angle</span>
+                    <span id="debug-angle">-</span>
+                </div>
+            </div>
         </div>
     </div>
 
