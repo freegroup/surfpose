@@ -141,8 +141,9 @@ async function init() {
         let stream;
         const facingMode = useFrontCamera ? 'user' : 'environment';
         const videoConstraints = [
-            { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode },
-            { width: { ideal: 640 }, height: { ideal: 480 }, facingMode },
+            // Landscape-Orientierung bevorzugen für bessere Pose-Erkennung
+            { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode, aspectRatio: { ideal: 16/9 } },
+            { width: { ideal: 640 }, height: { ideal: 480 }, facingMode, aspectRatio: { ideal: 4/3 } },
             { facingMode } // Fallback: Browser wählt selbst
         ];
 
@@ -182,13 +183,14 @@ async function init() {
         // Debug: Zeige Video-Info
         console.log('Video ready:', video.videoWidth, 'x', video.videoHeight);
 
-        // Load MoveNet
+        // Load MoveNet - mit optimierter Konfiguration
         loadingText.textContent = 'Lade MoveNet Model...';
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             {
                 modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
-                enableSmoothing: true
+                enableSmoothing: true,
+                minPoseScore: 0.2  // Niedrigerer Threshold für bessere Erkennung
             }
         );
 
@@ -355,8 +357,8 @@ async function detectPose() {
         const pose = poses[0];
         const keypoints = pose.keypoints;
 
-        // Debug: Anzahl gültiger Keypoints
-        const validKeypoints = keypoints.filter(kp => kp.score > 0.3).length;
+        // Debug: Anzahl gültiger Keypoints (mit niedrigerem Threshold)
+        const validKeypoints = keypoints.filter(kp => kp.score > 0.2).length;
         debugKeypoints.textContent = `${validKeypoints}/17`;
 
         // Scale keypoints to canvas size - berücksichtige object-fit: cover
@@ -411,7 +413,7 @@ function drawKeypoints(keypoints) {
     const color = getSkeletonColor();
 
     keypoints.forEach((kp) => {
-        if (kp.score > 0.3) {
+        if (kp.score > 0.2) {
             ctx.beginPath();
             ctx.arc(kp.x, kp.y, 8, 0, 2 * Math.PI);
             ctx.fillStyle = color;
@@ -432,7 +434,7 @@ function drawSkeleton(keypoints) {
         const kp1 = keypoints[i];
         const kp2 = keypoints[j];
 
-        if (kp1.score > 0.3 && kp2.score > 0.3) {
+        if (kp1.score > 0.2 && kp2.score > 0.2) {
             ctx.beginPath();
             ctx.moveTo(kp1.x, kp1.y);
             ctx.lineTo(kp2.x, kp2.y);
@@ -468,8 +470,8 @@ function analyzePose(keypoints) {
     const leftAnkle = keypoints[KEYPOINTS.LEFT_ANKLE];
     const rightAnkle = keypoints[KEYPOINTS.RIGHT_ANKLE];
 
-    // Check confidence
-    const minScore = 0.3;
+    // Check confidence - niedrigerer Threshold für Mobile
+    const minScore = 0.2;
     const hasRequiredPoints =
         nose.score > minScore &&
         leftHip.score > minScore && rightHip.score > minScore &&
