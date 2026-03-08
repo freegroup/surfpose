@@ -126,8 +126,9 @@ async function init() {
     debugClose.addEventListener('click', () => debugPanel.classList.add('hidden'));
 
     try {
-        // Initialize TensorFlow
+        // Initialize TensorFlow - explizit WebGL Backend setzen
         loadingText.textContent = 'Initialisiere TensorFlow.js...';
+        await tf.setBackend('webgl');
         await tf.ready();
         const backend = tf.getBackend();
         console.log('TensorFlow.js Backend:', backend);
