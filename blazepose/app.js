@@ -37,7 +37,6 @@ const KEYPOINTS = {
     RIGHT_FOOT_INDEX: 32
 };
 
-// Only draw skeleton connections between relevant keypoints
 const SKELETON_CONNECTIONS = [
     [KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.RIGHT_SHOULDER],
     [KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.LEFT_HIP],
@@ -47,7 +46,6 @@ const SKELETON_CONNECTIONS = [
     [KEYPOINTS.RIGHT_HIP, KEYPOINTS.RIGHT_ANKLE]
 ];
 
-// Relevant keypoints for drawing (excluding nose - we draw head center instead)
 const RELEVANT_KEYPOINTS = [
     KEYPOINTS.LEFT_SHOULDER,
     KEYPOINTS.RIGHT_SHOULDER,
@@ -62,39 +60,46 @@ const RELEVANT_KEYPOINTS = [
 // ============================================
 const AppState = {
     INITIALIZING: 'initializing',
-    READY: 'ready',           // Warte auf Liegen
-    LYING: 'lying',           // Person liegt - bereit zum Start
-    MEASURING: 'measuring',   // Timer läuft
-    COMPLETED: 'completed',   // Erfolgreich gestanden
-    TIMEOUT: 'timeout'        // 20 Sekunden überschritten
+    READY: 'ready',
+    LYING: 'lying',
+    MEASURING: 'measuring',
+    COMPLETED: 'completed',
+    TIMEOUT: 'timeout'
 };
 
 let detector = null;
 let currentState = AppState.INITIALIZING;
-let currentPose = 'unknown';  // 'lying', 'standing', 'unknown'
+let currentPose = 'unknown';
 let timerStartTime = null;
 let lastMeasuredTime = 0;
 let animationFrameId = null;
 
-const MAX_TIME = 20; // Maximale Zeit in Sekunden
+const MAX_TIME = 20;
+
+// Stats
+let bestTime = null;
+let repsCount = 0;
 
 // DOM Elements
 let video, canvas, ctx;
-let frameBorder, timerContainer, timerValue, poseIndicator;
-let statusBadge, statusIcon, statusText, instructionBadge;
-let loadingOverlay, loadingText, btnReset;
-let keypointsDisplay;
+let videoContainer;
+let timerOverlay, timerValue;
+let bestTimeEl, repsCountEl;
+let celebration;
+let loadingOverlay, loadingText;
+let statusDot;
 
-let useFrontCamera = true; // Toggle für Kamera
-
-// Debug Panel Elements
-let debugPanel, debugBackend, debugVideo, debugCanvas, debugFps;
-let debugPoses, debugKeypoints, debugPose, debugHead, debugFeet, debugVdiff, debugAngle;
+// Debug Elements
+let debugPanel, debugBackend, debugVideo, debugFps;
+let debugKeypoints, debugPose, debugVdiff, debugAngle;
 
 // FPS Tracking
 let lastFrameTime = 0;
 let frameCount = 0;
 let fps = 0;
+
+// Keypoint Smoother - One Euro Filter für adaptive Glättung
+let smoother = null;
 
 // ============================================
 // INITIALIZATION
@@ -103,31 +108,24 @@ function initDOMElements() {
     video = document.getElementById('video');
     canvas = document.getElementById('skeleton-canvas');
     ctx = canvas.getContext('2d');
+    videoContainer = document.querySelector('.video-container');
 
-    frameBorder = document.getElementById('frame-border');
-    timerContainer = document.getElementById('timer-container');
+    timerOverlay = document.getElementById('timer-overlay');
     timerValue = document.getElementById('timer-value');
-    poseIndicator = document.getElementById('pose-indicator');
-    statusBadge = document.getElementById('status-badge');
-    statusIcon = statusBadge.querySelector('.status-icon');
-    statusText = document.getElementById('status-text');
-    instructionBadge = document.getElementById('instruction-badge');
+    bestTimeEl = document.getElementById('best-time');
+    repsCountEl = document.getElementById('reps-count');
+    celebration = document.getElementById('celebration');
     loadingOverlay = document.getElementById('loading-overlay');
     loadingText = document.getElementById('loading-text');
-    btnReset = document.getElementById('btn-reset');
-    keypointsDisplay = document.getElementById('keypoints-display');
+    statusDot = document.getElementById('status-dot');
 
     // Debug Panel
     debugPanel = document.getElementById('debug-panel');
     debugBackend = document.getElementById('debug-backend');
     debugVideo = document.getElementById('debug-video');
-    debugCanvas = document.getElementById('debug-canvas');
     debugFps = document.getElementById('debug-fps');
-    debugPoses = document.getElementById('debug-poses');
     debugKeypoints = document.getElementById('debug-keypoints');
     debugPose = document.getElementById('debug-pose');
-    debugHead = document.getElementById('debug-head');
-    debugFeet = document.getElementById('debug-feet');
     debugVdiff = document.getElementById('debug-vdiff');
     debugAngle = document.getElementById('debug-angle');
 }
@@ -135,8 +133,19 @@ function initDOMElements() {
 async function init() {
     initDOMElements();
 
-    // Reset button
-    btnReset.addEventListener('click', resetApp);
+    // Initialize smoother
+    smoother = new OneEuroKeypointSmoother({
+        minCutoff: 1.0,
+        beta: 0.007,
+        minScore: 0.1
+    });
+
+    // Load saved best time from localStorage
+    const savedBest = localStorage.getItem('surfpop-best-time');
+    if (savedBest) {
+        bestTime = parseFloat(savedBest);
+        bestTimeEl.textContent = bestTime.toFixed(2) + 's';
+    }
 
     // Debug toggle
     const btnDebug = document.getElementById('btn-debug');
@@ -145,73 +154,50 @@ async function init() {
     debugClose.addEventListener('click', () => debugPanel.classList.add('hidden'));
 
     try {
-        // Initialize TensorFlow backend
-        loadingText.textContent = 'Initialisiere...';
+        loadingText.textContent = 'Initialisiere TensorFlow.js...';
         await tf.setBackend('webgl');
         await tf.ready();
-        const backend = tf.getBackend();
-        console.log('TensorFlow.js Backend:', backend);
-        debugBackend.textContent = backend + ' + MediaPipe';
+        debugBackend.textContent = tf.getBackend() + ' + MediaPipe';
 
-        // Setup camera
         loadingText.textContent = 'Starte Kamera...';
 
-        let stream;
-        const facingMode = useFrontCamera ? 'user' : 'environment';
         const videoConstraints = [
-            { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode, aspectRatio: { ideal: 16/9 } },
-            { width: { ideal: 640 }, height: { ideal: 480 }, facingMode, aspectRatio: { ideal: 4/3 } },
-            { facingMode }
+            { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+            { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+            { facingMode: 'user' }
         ];
 
+        let stream;
         for (const constraints of videoConstraints) {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: constraints,
-                    audio: false
-                });
-                console.log('Camera started with:', constraints);
+                stream = await navigator.mediaDevices.getUserMedia({ video: constraints, audio: false });
                 break;
             } catch (e) {
-                console.log('Failed with constraints:', constraints, e.message);
+                console.log('Failed with constraints:', constraints);
             }
         }
 
-        if (!stream) {
-            throw new Error('Keine Kamera verfügbar');
-        }
+        if (!stream) throw new Error('Keine Kamera verfügbar');
 
         video.srcObject = stream;
-
-        await new Promise((resolve) => {
-            video.onloadedmetadata = () => {
-                console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
-                resolve();
-            };
-        });
-
+        await new Promise(resolve => video.onloadedmetadata = resolve);
         await video.play();
 
-        // Set canvas size to match video
         updateCanvasSize();
         window.addEventListener('resize', updateCanvasSize);
 
-        console.log('Video ready:', video.videoWidth, 'x', video.videoHeight);
-
-        // Load BlazePose with MediaPipe runtime
         loadingText.textContent = 'Lade BlazePose Full...';
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.BlazePose,
             {
                 runtime: 'mediapipe',
-                modelType: 'full',  // 'lite', 'full', or 'heavy'
+                modelType: 'full',
                 solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
                 enableSmoothing: true,
                 enableSegmentation: false
             }
         );
 
-        // Hide loading, start detection
         loadingOverlay.classList.add('hidden');
         setState(AppState.READY);
         detectPose();
@@ -223,8 +209,9 @@ async function init() {
 }
 
 function updateCanvasSize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const container = canvas.parentElement;
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
 }
 
 // ============================================
@@ -233,69 +220,69 @@ function updateCanvasSize() {
 function setState(newState) {
     currentState = newState;
 
-    // Reset classes
-    frameBorder.className = '';
-    timerContainer.className = 'timer-container';
-    statusBadge.className = 'status-badge';
-    poseIndicator.className = 'pose-indicator';
+    timerOverlay.className = 'timer-overlay';
+    videoContainer.className = 'video-container';
+    statusDot.style.background = getStateColor();
 
     switch (newState) {
         case AppState.READY:
-            statusIcon.textContent = '👀';
-            statusText.textContent = 'Warte auf Position';
-            instructionBadge.textContent = '🏊 Leg dich in die Paddling-Position (auf den Bauch)';
-            poseIndicator.textContent = 'Warte auf Liegen...';
             timerValue.textContent = '0.00';
             break;
 
         case AppState.LYING:
-            frameBorder.classList.add('ready');
-            statusBadge.classList.add('ready');
-            poseIndicator.classList.add('lying');
-            statusIcon.textContent = '✅';
-            statusText.textContent = 'Bereit';
-            instructionBadge.textContent = '🚀 Spring auf! Timer startet automatisch';
-            poseIndicator.textContent = '🏊 Paddling Position - Bereit!';
             timerValue.textContent = '0.00';
+            videoContainer.classList.add('state-lying');
             break;
 
         case AppState.MEASURING:
-            frameBorder.classList.add('active');
-            timerContainer.classList.add('active');
-            statusBadge.classList.add('active');
-            statusIcon.textContent = '⏱️';
-            statusText.textContent = 'Messung läuft';
-            instructionBadge.textContent = '🏄 Spring in die Surf Stance!';
-            poseIndicator.textContent = '⏱️ Messe...';
+            timerOverlay.classList.add('counting');
+            videoContainer.classList.add('state-measuring');
             break;
 
         case AppState.COMPLETED:
-            frameBorder.classList.add('standing');
-            timerContainer.classList.add('success');
-            statusBadge.classList.add('done');
-            poseIndicator.classList.add('standing');
-            statusIcon.textContent = '🎉';
-            statusText.textContent = 'Fertig!';
-            instructionBadge.textContent = `✅ Pop-Up Zeit: ${lastMeasuredTime.toFixed(2)}s - Drücke Reset für neue Messung`;
-            poseIndicator.textContent = '🏄 Surf Stance erreicht!';
+            timerOverlay.classList.add('stopped');
+            videoContainer.classList.add('state-completed');
+            repsCount++;
+            repsCountEl.textContent = repsCount;
+
+            if (bestTime === null || lastMeasuredTime < bestTime) {
+                bestTime = lastMeasuredTime;
+                bestTimeEl.textContent = bestTime.toFixed(2) + 's';
+                localStorage.setItem('surfpop-best-time', bestTime.toString());
+                showCelebration();
+            }
             break;
 
         case AppState.TIMEOUT:
-            frameBorder.classList.add('timeout');
-            timerContainer.classList.add('timeout');
-            statusIcon.textContent = '⏰';
-            statusText.textContent = 'Zeit abgelaufen';
-            instructionBadge.textContent = '⏰ 20 Sekunden überschritten - Drücke Reset';
-            poseIndicator.textContent = '❌ Timeout';
             timerValue.textContent = '20.00';
+            videoContainer.classList.add('state-timeout');
             break;
     }
+}
+
+function getStateColor() {
+    switch (currentState) {
+        case AppState.LYING: return '#10b981';
+        case AppState.MEASURING: return '#f59e0b';
+        case AppState.COMPLETED: return '#2dd4bf';
+        case AppState.TIMEOUT: return '#ef4444';
+        default: return '#2dd4bf';
+    }
+}
+
+function showCelebration() {
+    celebration.classList.remove('hidden');
+    setTimeout(() => {
+        celebration.classList.add('hidden');
+    }, 2000);
 }
 
 function resetApp() {
     timerStartTime = null;
     lastMeasuredTime = 0;
     timerValue.textContent = '0.00';
+    celebration.classList.add('hidden');
+    if (smoother) smoother.reset();
     setState(AppState.READY);
 }
 
@@ -305,7 +292,6 @@ function resetApp() {
 async function detectPose() {
     if (!detector || !video.videoWidth) return;
 
-    // FPS calculation
     frameCount++;
     const now = performance.now();
     if (now - lastFrameTime >= 1000) {
@@ -317,40 +303,18 @@ async function detectPose() {
 
     const poses = await detector.estimatePoses(video);
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Update debug panel
     debugVideo.textContent = `${video.videoWidth}×${video.videoHeight}`;
-    debugCanvas.textContent = `${canvas.width}×${canvas.height}`;
-    debugPoses.textContent = poses.length;
 
     if (poses.length > 0) {
         const pose = poses[0];
         const keypoints = pose.keypoints;
 
-        // Count only required keypoints for pose detection
-        const requiredIndices = [
-            KEYPOINTS.NOSE,
-            KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.RIGHT_SHOULDER,
-            KEYPOINTS.LEFT_HIP, KEYPOINTS.RIGHT_HIP,
-            KEYPOINTS.LEFT_ANKLE, KEYPOINTS.RIGHT_ANKLE
-        ];
         const getScore = (kp) => kp && kp.score !== undefined ? kp.score : 0;
-        const validRequired = requiredIndices.filter(i => getScore(keypoints[i]) > 0.1).length;
-        keypointsDisplay.textContent = `${validRequired}/7`;
-
-        // Debug: all keypoints
-        const validKeypoints = keypoints.filter(kp => (kp.score !== undefined ? kp.score : 1) > 0.1).length;
+        const validKeypoints = keypoints.filter(kp => getScore(kp) > 0.1).length;
         debugKeypoints.textContent = `${validKeypoints}/33`;
 
-        // Debug: Log first pose data once
-        if (!window._blazePoseLogged && keypoints.length > 0) {
-            console.log('BlazePose keypoints sample:', keypoints.slice(0, 5));
-            window._blazePoseLogged = true;
-        }
-
-        // Scale keypoints to canvas size
+        // Scale keypoints
         const videoAspect = video.videoWidth / video.videoHeight;
         const canvasAspect = canvas.width / canvas.height;
 
@@ -368,19 +332,21 @@ async function detectPose() {
 
         const scaledKeypoints = keypoints.map(kp => ({
             ...kp,
-            x: canvas.width - (kp.x * scaleX + offsetX), // Mirror X
+            x: canvas.width - (kp.x * scaleX + offsetX),
             y: kp.y * scaleY + offsetY
         }));
 
-        // Draw skeleton
-        drawSkeleton(scaledKeypoints);
-        drawKeypoints(scaledKeypoints);
+        // Geglättete Keypoints nur für die Anzeige
+        const smoothedKeypoints = smoother ? smoother.smooth(scaledKeypoints) : scaledKeypoints;
 
-        // Analyze pose
+        drawSkeleton(smoothedKeypoints);
+        drawKeypoints(smoothedKeypoints);
+
+        // Analyse mit echten (nicht geglätteten) Keypoints für schnelle Reaktion
         analyzePose(scaledKeypoints);
     }
 
-    // Update timer if measuring
+    // Update timer
     if (currentState === AppState.MEASURING && timerStartTime) {
         const elapsed = (Date.now() - timerStartTime) / 1000;
 
@@ -398,15 +364,14 @@ async function detectPose() {
 
 function drawKeypoints(keypoints) {
     const color = getSkeletonColor();
+    const getScore = (kp) => kp && kp.score !== undefined ? kp.score : 0;
 
-    // Draw body keypoints
     RELEVANT_KEYPOINTS.forEach((index) => {
         const kp = keypoints[index];
         if (!kp) return;
-        const confidence = kp.score !== undefined ? kp.score : 1;
-        if (confidence > 0.1) {
+        if (getScore(kp) > 0.1) {
             ctx.beginPath();
-            ctx.arc(kp.x, kp.y, 10, 0, 2 * Math.PI);
+            ctx.arc(kp.x, kp.y, 8, 0, 2 * Math.PI);
             ctx.fillStyle = color;
             ctx.fill();
             ctx.strokeStyle = 'white';
@@ -415,11 +380,11 @@ function drawKeypoints(keypoints) {
         }
     });
 
-    // Draw head center point
+    // Head center
     const headCenter = getHeadCenter(keypoints);
     if (headCenter && headCenter.score > 0.1) {
         ctx.beginPath();
-        ctx.arc(headCenter.x, headCenter.y, 10, 0, 2 * Math.PI);
+        ctx.arc(headCenter.x, headCenter.y, 8, 0, 2 * Math.PI);
         ctx.fillStyle = color;
         ctx.fill();
         ctx.strokeStyle = 'white';
@@ -430,6 +395,7 @@ function drawKeypoints(keypoints) {
 
 function drawSkeleton(keypoints) {
     const color = getSkeletonColor();
+    const getScore = (kp) => kp && kp.score !== undefined ? kp.score : 0;
     ctx.strokeStyle = color;
     ctx.lineWidth = 3;
 
@@ -439,10 +405,7 @@ function drawSkeleton(keypoints) {
 
         if (!kp1 || !kp2) return;
 
-        const score1 = kp1.score !== undefined ? kp1.score : 1;
-        const score2 = kp2.score !== undefined ? kp2.score : 1;
-
-        if (score1 > 0.1 && score2 > 0.1) {
+        if (getScore(kp1) > 0.1 && getScore(kp2) > 0.1) {
             ctx.beginPath();
             ctx.moveTo(kp1.x, kp1.y);
             ctx.lineTo(kp2.x, kp2.y);
@@ -450,16 +413,13 @@ function drawSkeleton(keypoints) {
         }
     });
 
-    // Draw head center to shoulder center connection
+    // Head to shoulder connection
     const headCenter = getHeadCenter(keypoints);
     const leftShoulder = keypoints[KEYPOINTS.LEFT_SHOULDER];
     const rightShoulder = keypoints[KEYPOINTS.RIGHT_SHOULDER];
 
     if (headCenter && leftShoulder && rightShoulder) {
-        const lsScore = leftShoulder.score !== undefined ? leftShoulder.score : 1;
-        const rsScore = rightShoulder.score !== undefined ? rightShoulder.score : 1;
-
-        if (lsScore > 0.1 && rsScore > 0.1) {
+        if (getScore(leftShoulder) > 0.1 && getScore(rightShoulder) > 0.1) {
             const shoulderCenterX = (leftShoulder.x + rightShoulder.x) / 2;
             const shoulderCenterY = (leftShoulder.y + rightShoulder.y) / 2;
             ctx.beginPath();
@@ -472,16 +432,11 @@ function drawSkeleton(keypoints) {
 
 function getSkeletonColor() {
     switch (currentState) {
-        case AppState.LYING:
-            return '#10b981';
-        case AppState.MEASURING:
-            return '#f59e0b';
-        case AppState.COMPLETED:
-            return '#3b82f6';
-        case AppState.TIMEOUT:
-            return '#ef4444';
-        default:
-            return '#ffffff';
+        case AppState.LYING: return '#2dd4bf';
+        case AppState.MEASURING: return '#f59e0b';
+        case AppState.COMPLETED: return '#2dd4bf';
+        case AppState.TIMEOUT: return '#ef4444';
+        default: return '#2dd4bf';
     }
 }
 
@@ -495,7 +450,6 @@ function getHeadCenter(keypoints) {
     const minScore = 0.1;
     const getScore = (kp) => kp && kp.score !== undefined ? kp.score : 0;
 
-    // Collect valid head points
     const validPoints = [];
     if (getScore(nose) > minScore) validPoints.push(nose);
     if (getScore(leftEar) > minScore) validPoints.push(leftEar);
@@ -503,7 +457,6 @@ function getHeadCenter(keypoints) {
 
     if (validPoints.length === 0) return null;
 
-    // Calculate average position
     const avgX = validPoints.reduce((sum, p) => sum + p.x, 0) / validPoints.length;
     const avgY = validPoints.reduce((sum, p) => sum + p.y, 0) / validPoints.length;
     const avgScore = validPoints.reduce((sum, p) => sum + getScore(p), 0) / validPoints.length;
@@ -512,7 +465,6 @@ function getHeadCenter(keypoints) {
 }
 
 function analyzePose(keypoints) {
-    // BlazePose uses different indices
     const leftShoulder = keypoints[KEYPOINTS.LEFT_SHOULDER];
     const rightShoulder = keypoints[KEYPOINTS.RIGHT_SHOULDER];
     const leftHip = keypoints[KEYPOINTS.LEFT_HIP];
@@ -520,10 +472,8 @@ function analyzePose(keypoints) {
     const leftAnkle = keypoints[KEYPOINTS.LEFT_ANKLE];
     const rightAnkle = keypoints[KEYPOINTS.RIGHT_ANKLE];
 
-    // Get head center from nose + ears
     const headCenter = getHeadCenter(keypoints);
 
-    // Check confidence - BlazePose may have different score format
     const minScore = 0.1;
     const getScore = (kp) => kp && kp.score !== undefined ? kp.score : 0;
     const hasRequiredPoints =
@@ -537,40 +487,30 @@ function analyzePose(keypoints) {
         return;
     }
 
-    // Calculate positions using head center
     const headY = headCenter.y;
     const hipY = (leftHip.y + rightHip.y) / 2;
     const feetY = (leftAnkle.y + rightAnkle.y) / 2;
     const verticalDiff = feetY - headY;
 
-    // Calculate torso angle
     const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
     const shoulderX = (leftShoulder.x + rightShoulder.x) / 2;
     const hipX = (leftHip.x + rightHip.x) / 2;
     const torsoAngle = Math.atan2(Math.abs(hipX - shoulderX), Math.abs(hipY - shoulderY)) * (180 / Math.PI);
 
-    // Update debug panel
-    debugHead.textContent = Math.round(headY);
-    debugFeet.textContent = Math.round(feetY);
     debugVdiff.textContent = Math.round(verticalDiff);
     debugAngle.textContent = torsoAngle.toFixed(1) + '°';
 
-    // Determine pose - stricter standing detection
-    const heightThreshold = canvas.height * 0.35; // 35% statt 25% für strengere Erkennung
+    const heightThreshold = canvas.height * 0.35;
 
     if (verticalDiff > heightThreshold && torsoAngle < 30) {
-        // Aufrecht stehen: großer vertikaler Abstand UND Oberkörper fast senkrecht
         currentPose = 'standing';
     } else if (verticalDiff < heightThreshold * 0.25 && torsoAngle > 60) {
-        // Liegen: kleiner vertikaler Abstand UND Oberkörper horizontal (streng!)
         currentPose = 'lying';
     } else {
         currentPose = 'transition';
     }
 
     debugPose.textContent = currentPose;
-
-    // State machine logic
     handleStateTransition();
 }
 
@@ -594,9 +534,7 @@ function handleStateTransition() {
                 lastMeasuredTime = (Date.now() - timerStartTime) / 1000;
                 timerValue.textContent = lastMeasuredTime.toFixed(2);
                 setState(AppState.COMPLETED);
-            }
-            // Wenn Person wieder liegt -> Reset und zurück zu LYING
-            else if (currentPose === 'lying') {
+            } else if (currentPose === 'lying') {
                 timerStartTime = null;
                 lastMeasuredTime = 0;
                 timerValue.textContent = '0.00';
@@ -606,7 +544,6 @@ function handleStateTransition() {
 
         case AppState.COMPLETED:
         case AppState.TIMEOUT:
-            // Auto-Reset wenn Person sich wieder hinlegt
             if (currentPose === 'lying') {
                 timerStartTime = null;
                 lastMeasuredTime = 0;

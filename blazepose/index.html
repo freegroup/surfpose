@@ -5,113 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
-    <title>SurfFit - BlazePose</title>
+    <meta name="theme-color" content="#1a1a2e">
+    <title>SurfFit - Precision Mode</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/app.css">
 </head>
 <body>
-    <!-- Fullscreen Camera Layer -->
-    <div id="camera-layer">
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="skeleton-canvas"></canvas>
-        <div id="frame-border"></div>
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Header -->
+        <header class="app-header">
+            <a href="../" class="brand">SURFPOP</a>
+            <div class="header-actions">
+                <button class="btn-icon" id="btn-debug" title="Debug">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <line x1="12" y1="2" x2="12" y2="4"/>
+                        <line x1="12" y1="20" x2="12" y2="22"/>
+                        <line x1="2" y1="12" x2="4" y2="12"/>
+                        <line x1="20" y1="12" x2="22" y2="12"/>
+                    </svg>
+                </button>
+                <div class="status-dot" id="status-dot"></div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Video Area -->
+            <div class="video-container">
+                <video id="video" autoplay playsinline muted></video>
+                <canvas id="skeleton-canvas"></canvas>
+
+                <!-- Celebration Overlay -->
+                <div class="celebration hidden" id="celebration">
+                    <span class="celebration-text">YEAH!</span>
+                    <span class="celebration-emoji">👍</span>
+                </div>
+
+                <!-- Timer Overlay -->
+                <div class="timer-overlay" id="timer-overlay">
+                    <span class="timer-value" id="timer-value">0.00</span>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="stat-card">
+                    <span class="stat-label">BEST</span>
+                    <span class="stat-value" id="best-time">—</span>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">REPS</span>
+                    <span class="stat-value" id="reps-count">0</span>
+                </div>
+
+                <div class="instructions">
+                    <div class="instruction-item">
+                        <span>Hinlegen</span>
+                        <span class="arrow down">↘</span>
+                    </div>
+                    <div class="instruction-sub">Timer startet</div>
+                    <div class="instruction-item">
+                        <span>Aufstehen</span>
+                        <span class="arrow up">↗</span>
+                    </div>
+                    <div class="instruction-sub">Timer stoppt</div>
+                </div>
+            </aside>
+        </main>
     </div>
 
-    <!-- Overlay UI -->
-    <div id="overlay-ui">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <a href="../" class="back-btn">← Zurück</a>
-            <div class="app-badge">
-                <span class="logo">🎯</span>
-                <span class="title">BlazePose</span>
-            </div>
-            <div class="status-badge" id="status-badge">
-                <span class="status-icon">⏳</span>
-                <span class="status-text" id="status-text">Initialisiere...</span>
-            </div>
+    <!-- Debug Panel -->
+    <div class="debug-panel hidden" id="debug-panel">
+        <div class="debug-header">
+            <span>Debug Info</span>
+            <button class="debug-close" id="debug-close">×</button>
         </div>
-
-        <!-- Center Timer -->
-        <div class="center-content">
-            <div class="timer-container" id="timer-container">
-                <div class="timer-value" id="timer-value">0.00</div>
-                <div class="timer-unit">Sekunden</div>
-            </div>
-            <div class="pose-indicator" id="pose-indicator">Warte auf Position...</div>
-        </div>
-
-        <!-- Bottom Bar -->
-        <div class="bottom-bar">
-            <div class="instruction-badge" id="instruction-badge">
-                📷 Positioniere die Kamera so, dass dein ganzer Körper sichtbar ist
-            </div>
-            <div class="button-row">
-                <div class="keypoints-display" id="keypoints-display">0/7</div>
-                <button class="btn-reset" id="btn-reset">↻ Reset</button>
-                <button class="btn-debug" id="btn-debug">🐛</button>
-            </div>
-        </div>
-
-        <!-- Debug Panel -->
-        <div class="debug-panel hidden" id="debug-panel">
-            <div class="debug-header">
-                <span>🐛 Debug Info</span>
-                <button class="debug-close" id="debug-close">✕</button>
-            </div>
-            <div class="debug-content">
-                <div class="debug-row">
-                    <span>Model</span>
-                    <span>BlazePose Full</span>
-                </div>
-                <div class="debug-row">
-                    <span>Backend</span>
-                    <span id="debug-backend">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Video</span>
-                    <span id="debug-video">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Canvas</span>
-                    <span id="debug-canvas">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>FPS</span>
-                    <span id="debug-fps">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Poses</span>
-                    <span id="debug-poses">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Keypoints</span>
-                    <span id="debug-keypoints">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Pose</span>
-                    <span id="debug-pose">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Head Y</span>
-                    <span id="debug-head">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Feet Y</span>
-                    <span id="debug-feet">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>V-Diff</span>
-                    <span id="debug-vdiff">-</span>
-                </div>
-                <div class="debug-row">
-                    <span>Angle</span>
-                    <span id="debug-angle">-</span>
-                </div>
-            </div>
+        <div class="debug-content">
+            <div class="debug-row"><span>Model</span><span>BlazePose Full</span></div>
+            <div class="debug-row"><span>Backend</span><span id="debug-backend">-</span></div>
+            <div class="debug-row"><span>Video</span><span id="debug-video">-</span></div>
+            <div class="debug-row"><span>FPS</span><span id="debug-fps">-</span></div>
+            <div class="debug-row"><span>Keypoints</span><span id="debug-keypoints">-</span></div>
+            <div class="debug-row"><span>Pose</span><span id="debug-pose">-</span></div>
+            <div class="debug-row"><span>V-Diff</span><span id="debug-vdiff">-</span></div>
+            <div class="debug-row"><span>Angle</span><span id="debug-angle">-</span></div>
         </div>
     </div>
 
@@ -119,10 +102,12 @@
     <div id="loading-overlay">
         <div class="loading-content">
             <div class="spinner"></div>
-            <div class="loading-text" id="loading-text">Lade BlazePose...</div>
+            <div class="loading-text" id="loading-text">Lade BlazePose Full...</div>
         </div>
     </div>
 
+    <!-- Keypoint Smoother -->
+    <script src="../lib/keypoint-smoother.js"></script>
     <!-- MediaPipe for BlazePose -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.17.0/dist/tf-core.min.js"></script>

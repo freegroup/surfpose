@@ -21,7 +21,6 @@ const KEYPOINTS = {
     RIGHT_ANKLE: 16
 };
 
-// Only draw skeleton connections between relevant keypoints
 const SKELETON_CONNECTIONS = [
     [KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.RIGHT_SHOULDER],
     [KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.LEFT_HIP],
@@ -31,44 +30,60 @@ const SKELETON_CONNECTIONS = [
     [KEYPOINTS.RIGHT_HIP, KEYPOINTS.RIGHT_ANKLE]
 ];
 
+const RELEVANT_KEYPOINTS = [
+    KEYPOINTS.LEFT_SHOULDER,
+    KEYPOINTS.RIGHT_SHOULDER,
+    KEYPOINTS.LEFT_HIP,
+    KEYPOINTS.RIGHT_HIP,
+    KEYPOINTS.LEFT_ANKLE,
+    KEYPOINTS.RIGHT_ANKLE
+];
+
 // ============================================
 // APP STATE
 // ============================================
 const AppState = {
     INITIALIZING: 'initializing',
-    READY: 'ready',           // Warte auf Liegen
-    LYING: 'lying',           // Person liegt - bereit zum Start
-    MEASURING: 'measuring',   // Timer läuft
-    COMPLETED: 'completed',   // Erfolgreich gestanden
-    TIMEOUT: 'timeout'        // 20 Sekunden überschritten
+    READY: 'ready',
+    LYING: 'lying',
+    MEASURING: 'measuring',
+    COMPLETED: 'completed',
+    TIMEOUT: 'timeout'
 };
 
 let detector = null;
 let currentState = AppState.INITIALIZING;
-let currentPose = 'unknown';  // 'lying', 'standing', 'unknown'
+let currentPose = 'unknown';
 let timerStartTime = null;
 let lastMeasuredTime = 0;
 let animationFrameId = null;
 
-const MAX_TIME = 20; // Maximale Zeit in Sekunden
+const MAX_TIME = 20;
+
+// Stats
+let bestTime = null;
+let repsCount = 0;
 
 // DOM Elements
 let video, canvas, ctx;
-let frameBorder, timerContainer, timerValue, poseIndicator;
-let statusBadge, statusIcon, statusText, instructionBadge;
-let loadingOverlay, loadingText, btnReset;
-let keypointsDisplay;
+let videoContainer;
+let timerOverlay, timerValue;
+let bestTimeEl, repsCountEl;
+let celebration;
+let loadingOverlay, loadingText;
+let statusDot;
 
-let useFrontCamera = true; // Toggle für Kamera
-
-// Debug Panel Elements
-let debugPanel, debugBackend, debugVideo, debugCanvas, debugFps;
-let debugPoses, debugKeypoints, debugPose, debugHead, debugFeet, debugVdiff, debugAngle;
+// Debug Elements
+let debugPanel, debugBackend, debugVideo, debugFps;
+let debugKeypoints, debugPose, debugVdiff, debugAngle;
 
 // FPS Tracking
 let lastFrameTime = 0;
 let frameCount = 0;
 let fps = 0;
+
+// Keypoint Smoother - One Euro Filter für adaptive Glättung
+let smoother = null;
 
 // ============================================
 // INITIALIZATION
@@ -77,31 +92,24 @@ function initDOMElements() {
     video = document.getElementById('video');
     canvas = document.getElementById('skeleton-canvas');
     ctx = canvas.getContext('2d');
+    videoContainer = document.querySelector('.video-container');
 
-    frameBorder = document.getElementById('frame-border');
-    timerContainer = document.getElementById('timer-container');
+    timerOverlay = document.getElementById('timer-overlay');
     timerValue = document.getElementById('timer-value');
-    poseIndicator = document.getElementById('pose-indicator');
-    statusBadge = document.getElementById('status-badge');
-    statusIcon = statusBadge.querySelector('.status-icon');
-    statusText = document.getElementById('status-text');
-    instructionBadge = document.getElementById('instruction-badge');
+    bestTimeEl = document.getElementById('best-time');
+    repsCountEl = document.getElementById('reps-count');
+    celebration = document.getElementById('celebration');
     loadingOverlay = document.getElementById('loading-overlay');
     loadingText = document.getElementById('loading-text');
-    btnReset = document.getElementById('btn-reset');
-    keypointsDisplay = document.getElementById('keypoints-display');
+    statusDot = document.getElementById('status-dot');
 
     // Debug Panel
     debugPanel = document.getElementById('debug-panel');
     debugBackend = document.getElementById('debug-backend');
     debugVideo = document.getElementById('debug-video');
-    debugCanvas = document.getElementById('debug-canvas');
     debugFps = document.getElementById('debug-fps');
-    debugPoses = document.getElementById('debug-poses');
     debugKeypoints = document.getElementById('debug-keypoints');
     debugPose = document.getElementById('debug-pose');
-    debugHead = document.getElementById('debug-head');
-    debugFeet = document.getElementById('debug-feet');
     debugVdiff = document.getElementById('debug-vdiff');
     debugAngle = document.getElementById('debug-angle');
 }
@@ -109,8 +117,19 @@ function initDOMElements() {
 async function init() {
     initDOMElements();
 
-    // Reset button
-    btnReset.addEventListener('click', resetApp);
+    // Initialize smoother
+    smoother = new OneEuroKeypointSmoother({
+        minCutoff: 1.0,  // Mehr Glättung bei langsamen Bewegungen
+        beta: 0.007,     // Weniger Glättung bei schnellen Bewegungen
+        minScore: 0.2
+    });
+
+    // Load saved best time from localStorage
+    const savedBest = localStorage.getItem('surfpop-best-time');
+    if (savedBest) {
+        bestTime = parseFloat(savedBest);
+        bestTimeEl.textContent = bestTime.toFixed(2) + 's';
+    }
 
     // Debug toggle
     const btnDebug = document.getElementById('btn-debug');
@@ -119,75 +138,48 @@ async function init() {
     debugClose.addEventListener('click', () => debugPanel.classList.add('hidden'));
 
     try {
-        // Initialize TensorFlow - explizit WebGL Backend setzen
         loadingText.textContent = 'Initialisiere TensorFlow.js...';
         await tf.setBackend('webgl');
         await tf.ready();
-        const backend = tf.getBackend();
-        console.log('TensorFlow.js Backend:', backend);
-        debugBackend.textContent = backend;
+        debugBackend.textContent = tf.getBackend();
 
-        // Setup camera - mit Fallback für Mobile
         loadingText.textContent = 'Starte Kamera...';
 
-        // Versuche verschiedene Auflösungen
-        let stream;
-        const facingMode = useFrontCamera ? 'user' : 'environment';
         const videoConstraints = [
-            // Landscape-Orientierung bevorzugen für bessere Pose-Erkennung
-            { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode, aspectRatio: { ideal: 16/9 } },
-            { width: { ideal: 640 }, height: { ideal: 480 }, facingMode, aspectRatio: { ideal: 4/3 } },
-            { facingMode } // Fallback: Browser wählt selbst
+            { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+            { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+            { facingMode: 'user' }
         ];
 
+        let stream;
         for (const constraints of videoConstraints) {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: constraints,
-                    audio: false
-                });
-                console.log('Camera started with:', constraints);
+                stream = await navigator.mediaDevices.getUserMedia({ video: constraints, audio: false });
                 break;
             } catch (e) {
-                console.log('Failed with constraints:', constraints, e.message);
+                console.log('Failed with constraints:', constraints);
             }
         }
 
-        if (!stream) {
-            throw new Error('Keine Kamera verfügbar');
-        }
+        if (!stream) throw new Error('Keine Kamera verfügbar');
 
         video.srcObject = stream;
-
-        // Warte bis Video-Metadaten geladen sind
-        await new Promise((resolve) => {
-            video.onloadedmetadata = () => {
-                console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
-                resolve();
-            };
-        });
-
+        await new Promise(resolve => video.onloadedmetadata = resolve);
         await video.play();
 
-        // Set canvas size to match video
         updateCanvasSize();
         window.addEventListener('resize', updateCanvasSize);
 
-        // Debug: Zeige Video-Info
-        console.log('Video ready:', video.videoWidth, 'x', video.videoHeight);
-
-        // Load MoveNet - mit optimierter Konfiguration
         loadingText.textContent = 'Lade MoveNet Lightning...';
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             {
                 modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
                 enableSmoothing: true,
-                minPoseScore: 0.2  // Niedrigerer Threshold für bessere Erkennung
+                minPoseScore: 0.2
             }
         );
 
-        // Hide loading, start detection
         loadingOverlay.classList.add('hidden');
         setState(AppState.READY);
         detectPose();
@@ -199,8 +191,9 @@ async function init() {
 }
 
 function updateCanvasSize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const container = canvas.parentElement;
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
 }
 
 // ============================================
@@ -209,69 +202,75 @@ function updateCanvasSize() {
 function setState(newState) {
     currentState = newState;
 
-    // Reset classes
-    frameBorder.className = '';
-    timerContainer.className = 'timer-container';
-    statusBadge.className = 'status-badge';
-    poseIndicator.className = 'pose-indicator';
+    // Update timer overlay classes
+    timerOverlay.className = 'timer-overlay';
+
+    // Update video container border
+    videoContainer.className = 'video-container';
+
+    // Update status dot color
+    statusDot.style.background = getStateColor();
 
     switch (newState) {
         case AppState.READY:
-            statusIcon.textContent = '👀';
-            statusText.textContent = 'Warte auf Position';
-            instructionBadge.textContent = '🏊 Leg dich in die Paddling-Position (auf den Bauch)';
-            poseIndicator.textContent = 'Warte auf Liegen...';
             timerValue.textContent = '0.00';
             break;
 
         case AppState.LYING:
-            frameBorder.classList.add('ready');
-            statusBadge.classList.add('ready');
-            poseIndicator.classList.add('lying');
-            statusIcon.textContent = '✅';
-            statusText.textContent = 'Bereit';
-            instructionBadge.textContent = '🚀 Spring auf! Timer startet automatisch';
-            poseIndicator.textContent = '🏊 Paddling Position - Bereit!';
             timerValue.textContent = '0.00';
+            videoContainer.classList.add('state-lying');
             break;
 
         case AppState.MEASURING:
-            frameBorder.classList.add('active');
-            timerContainer.classList.add('active');
-            statusBadge.classList.add('active');
-            statusIcon.textContent = '⏱️';
-            statusText.textContent = 'Messung läuft';
-            instructionBadge.textContent = '🏄 Spring in die Surf Stance!';
-            poseIndicator.textContent = '⏱️ Messe...';
+            timerOverlay.classList.add('counting');
+            videoContainer.classList.add('state-measuring');
             break;
 
         case AppState.COMPLETED:
-            frameBorder.classList.add('standing');
-            timerContainer.classList.add('success');
-            statusBadge.classList.add('done');
-            poseIndicator.classList.add('standing');
-            statusIcon.textContent = '🎉';
-            statusText.textContent = 'Fertig!';
-            instructionBadge.textContent = `✅ Pop-Up Zeit: ${lastMeasuredTime.toFixed(2)}s - Drücke Reset für neue Messung`;
-            poseIndicator.textContent = '🏄 Surf Stance erreicht!';
+            timerOverlay.classList.add('stopped');
+            videoContainer.classList.add('state-completed');
+            repsCount++;
+            repsCountEl.textContent = repsCount;
+
+            // Check for new best time
+            if (bestTime === null || lastMeasuredTime < bestTime) {
+                bestTime = lastMeasuredTime;
+                bestTimeEl.textContent = bestTime.toFixed(2) + 's';
+                localStorage.setItem('surfpop-best-time', bestTime.toString());
+                showCelebration();
+            }
             break;
 
         case AppState.TIMEOUT:
-            frameBorder.classList.add('timeout');
-            timerContainer.classList.add('timeout');
-            statusIcon.textContent = '⏰';
-            statusText.textContent = 'Zeit abgelaufen';
-            instructionBadge.textContent = '⏰ 20 Sekunden überschritten - Drücke Reset';
-            poseIndicator.textContent = '❌ Timeout';
             timerValue.textContent = '20.00';
+            videoContainer.classList.add('state-timeout');
             break;
     }
+}
+
+function getStateColor() {
+    switch (currentState) {
+        case AppState.LYING: return '#10b981';
+        case AppState.MEASURING: return '#f59e0b';
+        case AppState.COMPLETED: return '#2dd4bf';
+        case AppState.TIMEOUT: return '#ef4444';
+        default: return '#2dd4bf';
+    }
+}
+
+function showCelebration() {
+    celebration.classList.remove('hidden');
+    setTimeout(() => {
+        celebration.classList.add('hidden');
+    }, 2000);
 }
 
 function resetApp() {
     timerStartTime = null;
     lastMeasuredTime = 0;
     timerValue.textContent = '0.00';
+    celebration.classList.add('hidden');
+    if (smoother) smoother.reset();
     setState(AppState.READY);
 }
 
@@ -281,7 +280,6 @@ function resetApp() {
 async function detectPose() {
     if (!detector || !video.videoWidth) return;
 
-    // FPS calculation
     frameCount++;
     const now = performance.now();
     if (now - lastFrameTime >= 1000) {
@@ -293,45 +291,27 @@ async function detectPose() {
 
     const poses = await detector.estimatePoses(video);
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Update debug panel
     debugVideo.textContent = `${video.videoWidth}×${video.videoHeight}`;
-    debugCanvas.textContent = `${canvas.width}×${canvas.height}`;
-    debugPoses.textContent = poses.length;
 
     if (poses.length > 0) {
         const pose = poses[0];
         const keypoints = pose.keypoints;
 
-        // Count only required keypoints for pose detection
-        const requiredIndices = [
-            KEYPOINTS.NOSE,
-            KEYPOINTS.LEFT_SHOULDER, KEYPOINTS.RIGHT_SHOULDER,
-            KEYPOINTS.LEFT_HIP, KEYPOINTS.RIGHT_HIP,
-            KEYPOINTS.LEFT_ANKLE, KEYPOINTS.RIGHT_ANKLE
-        ];
-        const validRequired = requiredIndices.filter(i => keypoints[i].score > 0.2).length;
-        keypointsDisplay.textContent = `${validRequired}/7`;
-
-        // Debug: all keypoints
         const validKeypoints = keypoints.filter(kp => kp.score > 0.2).length;
         debugKeypoints.textContent = `${validKeypoints}/17`;
 
-        // Scale keypoints to canvas size - berücksichtige object-fit: cover
+        // Scale keypoints
         const videoAspect = video.videoWidth / video.videoHeight;
         const canvasAspect = canvas.width / canvas.height;
 
         let scaleX, scaleY, offsetX = 0, offsetY = 0;
 
         if (canvasAspect > videoAspect) {
-            // Canvas ist breiter - Video wird horizontal gecroppt
             scaleX = canvas.width / video.videoWidth;
             scaleY = scaleX;
             offsetY = (canvas.height - video.videoHeight * scaleY) / 2;
         } else {
-            // Canvas ist höher - Video wird vertikal gecroppt
             scaleY = canvas.height / video.videoHeight;
             scaleX = scaleY;
             offsetX = (canvas.width - video.videoWidth * scaleX) / 2;
@@ -339,19 +319,21 @@ async function detectPose() {
 
         const scaledKeypoints = keypoints.map(kp => ({
             ...kp,
-            x: canvas.width - (kp.x * scaleX + offsetX), // Mirror X
+            x: canvas.width - (kp.x * scaleX + offsetX),
             y: kp.y * scaleY + offsetY
         }));
 
-        // Draw skeleton
-        drawSkeleton(scaledKeypoints);
-        drawKeypoints(scaledKeypoints);
+        // Geglättete Keypoints nur für die Anzeige
+        const smoothedKeypoints = smoother ? smoother.smooth(scaledKeypoints) : scaledKeypoints;
 
-        // Analyze pose
+        drawSkeleton(smoothedKeypoints);
+        drawKeypoints(smoothedKeypoints);
+
+        // Analyse mit echten (nicht geglätteten) Keypoints für schnelle Reaktion
         analyzePose(scaledKeypoints);
     }
 
-    // Update timer if measuring
+    // Update timer
     if (currentState === AppState.MEASURING && timerStartTime) {
         const elapsed = (Date.now() - timerStartTime) / 1000;
 
@@ -367,25 +349,14 @@ async function detectPose() {
     animationFrameId = requestAnimationFrame(detectPose);
 }
 
-// Only draw keypoints relevant for pose detection (excluding nose - we draw head center instead)
-const RELEVANT_KEYPOINTS = [
-    KEYPOINTS.LEFT_SHOULDER,
-    KEYPOINTS.RIGHT_SHOULDER,
-    KEYPOINTS.LEFT_HIP,
-    KEYPOINTS.RIGHT_HIP,
-    KEYPOINTS.LEFT_ANKLE,
-    KEYPOINTS.RIGHT_ANKLE
-];
-
 function drawKeypoints(keypoints) {
     const color = getSkeletonColor();
 
-    // Draw body keypoints
     RELEVANT_KEYPOINTS.forEach((index) => {
         const kp = keypoints[index];
         if (kp.score > 0.2) {
             ctx.beginPath();
-            ctx.arc(kp.x, kp.y, 10, 0, 2 * Math.PI);
+            ctx.arc(kp.x, kp.y, 8, 0, 2 * Math.PI);
             ctx.fillStyle = color;
             ctx.fill();
             ctx.strokeStyle = 'white';
@@ -394,11 +365,11 @@ function drawKeypoints(keypoints) {
         }
     });
 
-    // Draw head center point
+    // Head center
     const headCenter = getHeadCenter(keypoints);
     if (headCenter && headCenter.score > 0.2) {
         ctx.beginPath();
-        ctx.arc(headCenter.x, headCenter.y, 10, 0, 2 * Math.PI);
+        ctx.arc(headCenter.x, headCenter.y, 8, 0, 2 * Math.PI);
         ctx.fillStyle = color;
         ctx.fill();
         ctx.strokeStyle = 'white';
@@ -410,7 +381,7 @@ function drawKeypoints(keypoints) {
 function drawSkeleton(keypoints) {
     const color = getSkeletonColor();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
 
     SKELETON_CONNECTIONS.forEach(([i, j]) => {
         const kp1 = keypoints[i];
@@ -424,7 +395,7 @@ function drawSkeleton(keypoints) {
         }
     });
 
-    // Draw head center to shoulder center connection
+    // Head to shoulder connection
     const headCenter = getHeadCenter(keypoints);
     const leftShoulder = keypoints[KEYPOINTS.LEFT_SHOULDER];
     const rightShoulder = keypoints[KEYPOINTS.RIGHT_SHOULDER];
@@ -441,16 +412,11 @@ function drawSkeleton(keypoints) {
 
 function getSkeletonColor() {
     switch (currentState) {
-        case AppState.LYING:
-            return '#10b981'; // Grün
-        case AppState.MEASURING:
-            return '#f59e0b'; // Gelb/Orange
-        case AppState.COMPLETED:
-            return '#3b82f6'; // Blau
-        case AppState.TIMEOUT:
-            return '#ef4444'; // Rot
-        default:
-            return '#ffffff'; // Weiß
+        case AppState.LYING: return '#2dd4bf';
+        case AppState.MEASURING: return '#f59e0b';
+        case AppState.COMPLETED: return '#2dd4bf';
+        case AppState.TIMEOUT: return '#ef4444';
+        default: return '#2dd4bf';
     }
 }
 
@@ -463,7 +429,6 @@ function getHeadCenter(keypoints) {
     const rightEar = keypoints[KEYPOINTS.RIGHT_EAR];
     const minScore = 0.2;
 
-    // Collect valid head points
     const validPoints = [];
     if (nose.score > minScore) validPoints.push(nose);
     if (leftEar.score > minScore) validPoints.push(leftEar);
@@ -471,7 +436,6 @@ function getHeadCenter(keypoints) {
 
     if (validPoints.length === 0) return null;
 
-    // Calculate average position
     const avgX = validPoints.reduce((sum, p) => sum + p.x, 0) / validPoints.length;
     const avgY = validPoints.reduce((sum, p) => sum + p.y, 0) / validPoints.length;
     const avgScore = validPoints.reduce((sum, p) => sum + p.score, 0) / validPoints.length;
@@ -487,10 +451,8 @@ function analyzePose(keypoints) {
     const leftAnkle = keypoints[KEYPOINTS.LEFT_ANKLE];
     const rightAnkle = keypoints[KEYPOINTS.RIGHT_ANKLE];
 
-    // Get head center from nose + ears
     const headCenter = getHeadCenter(keypoints);
 
-    // Check confidence - niedrigerer Threshold für Mobile
     const minScore = 0.2;
     const hasRequiredPoints =
         headCenter && headCenter.score > minScore &&
@@ -503,41 +465,30 @@ function analyzePose(keypoints) {
         return;
     }
 
-    // Calculate positions using head center
     const headY = headCenter.y;
     const hipY = (leftHip.y + rightHip.y) / 2;
     const feetY = (leftAnkle.y + rightAnkle.y) / 2;
     const verticalDiff = feetY - headY;
 
-    // Calculate torso angle
     const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
     const shoulderX = (leftShoulder.x + rightShoulder.x) / 2;
     const hipX = (leftHip.x + rightHip.x) / 2;
     const torsoAngle = Math.atan2(Math.abs(hipX - shoulderX), Math.abs(hipY - shoulderY)) * (180 / Math.PI);
 
-    // Update debug panel
-    debugHead.textContent = Math.round(headY);
-    debugFeet.textContent = Math.round(feetY);
     debugVdiff.textContent = Math.round(verticalDiff);
     debugAngle.textContent = torsoAngle.toFixed(1) + '°';
 
-    // Determine pose - stricter detection like BlazePose
-    const heightThreshold = canvas.height * 0.35; // 35% für strengere Erkennung
+    const heightThreshold = canvas.height * 0.35;
 
     if (verticalDiff > heightThreshold && torsoAngle < 30) {
-        // Aufrecht stehen: großer vertikaler Abstand UND Oberkörper fast senkrecht
         currentPose = 'standing';
     } else if (verticalDiff < heightThreshold * 0.25 && torsoAngle > 60) {
-        // Liegen: kleiner vertikaler Abstand UND Oberkörper horizontal (streng!)
         currentPose = 'lying';
     } else {
         currentPose = 'transition';
     }
 
-    // Update debug pose
     debugPose.textContent = currentPose;
-
-    // State machine logic
     handleStateTransition();
 }
 
@@ -550,7 +501,6 @@ function handleStateTransition() {
             break;
 
         case AppState.LYING:
-            // Wenn Person nicht mehr liegt -> Messung starten
             if (currentPose !== 'lying') {
                 timerStartTime = Date.now();
                 setState(AppState.MEASURING);
@@ -558,14 +508,11 @@ function handleStateTransition() {
             break;
 
         case AppState.MEASURING:
-            // Wenn Person steht -> Fertig
             if (currentPose === 'standing') {
                 lastMeasuredTime = (Date.now() - timerStartTime) / 1000;
                 timerValue.textContent = lastMeasuredTime.toFixed(2);
                 setState(AppState.COMPLETED);
-            }
-            // Wenn Person wieder liegt -> Reset und zurück zu LYING
-            else if (currentPose === 'lying') {
+            } else if (currentPose === 'lying') {
                 timerStartTime = null;
                 lastMeasuredTime = 0;
                 timerValue.textContent = '0.00';
@@ -575,7 +522,6 @@ function handleStateTransition() {
 
         case AppState.COMPLETED:
         case AppState.TIMEOUT:
-            // Auto-Reset wenn Person sich wieder hinlegt
             if (currentPose === 'lying') {
                 timerStartTime = null;
                 lastMeasuredTime = 0;
