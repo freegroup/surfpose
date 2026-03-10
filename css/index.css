@@ -14,7 +14,7 @@
     --accent: #38bdf8;
     --accent-glow: rgba(56, 189, 248, 0.3);
     --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+    --text-secondary: #182940;
     --border: rgba(255, 255, 255, 0.08);
 }
 
@@ -29,7 +29,17 @@ html, body {
     overflow-x: hidden;
 }
 
-/* Animated gradient background */
+/* Background image */
+body {
+    background:
+        linear-gradient(to bottom, rgba(106, 112, 126, 0.7) 0%, rgba(43, 46, 51, 0.55) 100%),
+        url('../img/surfer-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* Animated gradient overlay */
 body::before {
     content: '';
     position: fixed;
@@ -93,7 +103,8 @@ body::before {
 .camera-hint {
     font-size: 0.95em;
     color: var(--text-secondary);
-    opacity: 0.8;
+    opacity: 1;
+    font-weight: 600;
 }
 
 .start-buttons {
@@ -178,7 +189,7 @@ body::before {
     font-size: 0.9em;
     padding: 10px 20px;
     border-radius: 30px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--text-secondary);
     transition: all 0.2s;
 }
 

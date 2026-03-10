@@ -403,7 +403,8 @@ let tooltipElement = null;
 function showPoseTooltip(pose, card, thumbnailUrl) {
     hidePoseTooltip();
 
-    const TOOLTIP_SCALE = 4;
+    const CARD_WIDTH = 64; // Width of pose cards in gallery
+    const TOOLTIP_WIDTH = CARD_WIDTH * 4; // 256px
     const rect = card.getBoundingClientRect();
 
     // Create tooltip container
@@ -436,8 +437,12 @@ function showPoseTooltip(pose, card, thumbnailUrl) {
 
     // Position and draw once image is loaded
     img.onload = () => {
-        const width = img.naturalWidth * TOOLTIP_SCALE;
-        const height = img.naturalHeight * TOOLTIP_SCALE;
+        const aspect = img.naturalWidth / img.naturalHeight;
+        const width = TOOLTIP_WIDTH;
+        const height = TOOLTIP_WIDTH / aspect;
+
+        // Scale factor for keypoints (from stored thumbnail size to tooltip size)
+        const keypointScale = TOOLTIP_WIDTH / img.naturalWidth;
 
         img.style.width = `${width}px`;
         img.style.height = `${height}px`;
@@ -479,7 +484,7 @@ function showPoseTooltip(pose, card, thumbnailUrl) {
 
         // Draw skeleton
         if (pose.thumbnailKeypoints) {
-            drawTooltipSkeleton(canvas, pose.thumbnailKeypoints, TOOLTIP_SCALE);
+            drawTooltipSkeleton(canvas, pose.thumbnailKeypoints, keypointScale);
         }
     };
 }
