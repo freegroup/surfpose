@@ -14,7 +14,6 @@ const statusText = poseStatus.querySelector('.status-text');
 const galleryScroll = document.getElementById('gallery-scroll');
 const galleryCount = document.getElementById('gallery-count');
 const galleryEmpty = document.getElementById('gallery-empty');
-const poseLabelSelect = document.getElementById('pose-label');
 const autoRecordCheckbox = document.getElementById('auto-record-checkbox');
 const autoRecordProgress = document.getElementById('auto-record-progress');
 const progressRing = document.getElementById('progress-ring');
@@ -192,8 +191,7 @@ async function recordPose() {
     setTimeout(() => flashOverlay.classList.remove('flash'), 300);
 
     try {
-        const label = poseLabelSelect.value;
-        const pose = await PoseDB.savePose(currentKeypoints, video, label);
+        const pose = await PoseDB.savePose(currentKeypoints, video, 'STAND');
 
         // Add to gallery
         addPoseToGallery(pose);
@@ -505,6 +503,12 @@ function hidePoseTooltip() {
 function drawTooltipSkeleton(canvas, thumbnailKeypoints, scale) {
     const ctx = canvas.getContext('2d');
 
+    // Get colors from CSS variables
+    const accentColor = getCssVar('--accent', '#38bdf8');
+    const successColor = getCssVar('--success', '#22c55e');
+    const warningColor = getCssVar('--warning', '#f59e0b');
+    const textColor = getCssVar('--text-primary', '#fff');
+
     // Scale keypoints to tooltip size
     const keypoints = {};
     for (const [name, kp] of Object.entries(thumbnailKeypoints)) {
@@ -516,7 +520,7 @@ function drawTooltipSkeleton(canvas, thumbnailKeypoints, scale) {
     }
 
     // Draw connections
-    ctx.strokeStyle = '#38bdf8';
+    ctx.strokeStyle = accentColor;
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
 
@@ -537,9 +541,9 @@ function drawTooltipSkeleton(canvas, thumbnailKeypoints, scale) {
         if (kp.score > 0.3 && Keypoints.isVisible(name)) {
             ctx.beginPath();
             ctx.arc(kp.x, kp.y, 5, 0, 2 * Math.PI);
-            ctx.fillStyle = kp.score > 0.6 ? '#22c55e' : '#f59e0b';
+            ctx.fillStyle = kp.score > 0.6 ? successColor : warningColor;
             ctx.fill();
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = textColor;
             ctx.lineWidth = 2;
             ctx.stroke();
         }

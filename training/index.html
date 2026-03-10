@@ -17,61 +17,57 @@
     <div class="app-layout">
         <!-- Header -->
         <header class="app-header">
-            <a href="../" class="brand">SURFPOP</a>
-            <div class="header-actions">
-                <select id="pose-label" class="pose-label-select">
-                    <option value="STAND">STAND</option>
-                    <option value="LYING">LYING</option>
-                </select>
+            <div class="brand-group">
+                <a href="../" class="brand">SURFPOP</a>
+                <span class="slogan">Train your <em>Pop-Up</em></span>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="app-main">
-            <!-- Video Section -->
-            <div class="video-section">
-                <div class="video-container">
-                    <video id="video" autoplay playsinline muted></video>
-                    <canvas id="skeleton-canvas"></canvas>
+            <!-- Video Container - Fullscreen -->
+            <div class="video-container">
+                <video id="video" autoplay playsinline muted></video>
+                <canvas id="skeleton-canvas"></canvas>
 
-                    <!-- Flash Effect -->
-                    <div class="flash-overlay" id="flash-overlay"></div>
+                <!-- Flash Effect -->
+                <div class="flash-overlay" id="flash-overlay"></div>
 
-                    <!-- Pose Status -->
-                    <div class="pose-status" id="pose-status">
-                        <span class="dot"></span>
-                        <span class="status-text">Warte auf Pose...</span>
-                    </div>
-
-                    <!-- Auto-Record Progress -->
-                    <div class="auto-record-progress hidden" id="auto-record-progress">
-                        <svg viewBox="0 0 36 36">
-                            <circle class="progress-bg" cx="18" cy="18" r="16"/>
-                            <circle class="progress-ring" cx="18" cy="18" r="16" id="progress-ring"/>
-                        </svg>
-                        <span class="progress-seconds" id="progress-seconds">10</span>
-                    </div>
+                <!-- Pose Status -->
+                <div class="pose-status" id="pose-status">
+                    <span class="dot"></span>
+                    <span class="status-text">Warte auf Pose...</span>
                 </div>
 
-                <!-- Recording Hint -->
-                <div class="recording-hint">
-                    <div class="hint-row">
-                        <span>Aufnehmen mit</span>
-                        <kbd>Space</kbd>
-                        <span>oder</span>
-                        <kbd>Enter</kbd>
+                <!-- Auto-Record Progress -->
+                <div class="auto-record-progress hidden" id="auto-record-progress">
+                    <svg viewBox="0 0 36 36">
+                        <circle class="progress-bg" cx="18" cy="18" r="16"/>
+                        <circle class="progress-ring" cx="18" cy="18" r="16" id="progress-ring"/>
+                    </svg>
+                    <span class="progress-seconds" id="progress-seconds">10</span>
+                </div>
+
+                <!-- Floating Sidebar -->
+                <aside class="sidebar">
+                    <div class="info-card">
+                        <p>Zeige dem System deine <strong>Surf-Stance</strong> – die Position, die du beim Pop-Up erreichen willst. Stelle dich seitlich zur Kamera, nicht frontal.</p>
+                        <p class="info-sub">Nimm 5–10 Varianten auf, damit das System lernt, was für dich "Stehen" bedeutet.</p>
                     </div>
-                    <label class="hint-row auto-record-toggle">
+                    <div class="hint-card">
+                        <p>Drücke <kbd>Space</kbd> oder <kbd>Enter</kbd> um eine Position aufzunehmen.</p>
+                    </div>
+                    <label class="auto-record-card">
                         <input type="checkbox" id="auto-record-checkbox">
                         <span>Auto-Record nach 5s Stillstand</span>
                     </label>
-                </div>
+                </aside>
             </div>
 
             <!-- Pose Gallery -->
             <div class="pose-gallery">
                 <div class="gallery-header">
-                    <span class="gallery-title">Gespeicherte Posen</span>
+                    <span class="gallery-title">Gespeicherte Stand-Positionen</span>
                     <span class="gallery-count" id="gallery-count">0 Posen</span>
                 </div>
                 <div class="gallery-scroll" id="gallery-scroll">

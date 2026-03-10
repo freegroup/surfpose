@@ -2,23 +2,12 @@
  * SURFPOP - Training Page Styles
  */
 
+@import url('colors.css');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-:root {
-    --bg-dark: #0f172a;
-    --bg-card: #1e293b;
-    --bg-card-hover: #334155;
-    --accent: #38bdf8;
-    --accent-glow: rgba(56, 189, 248, 0.3);
-    --success: #22c55e;
-    --danger: #ef4444;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border: rgba(255, 255, 255, 0.1);
 }
 
 html, body {
@@ -43,18 +32,41 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
-    background: rgba(15, 23, 42, 0.9);
-    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+    border-bottom: 1px solid var(--accent);
     z-index: 100;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.brand-group {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
 }
 
 .brand {
-    font-size: 1.1em;
+    font-size: 1.5em;
     font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--text-primary);
+    letter-spacing: 3px;
     text-decoration: none;
+    background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.slogan {
+    font-size: 0.9em;
+    font-weight: 400;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+
+.slogan em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .header-actions {
@@ -89,28 +101,15 @@ html, body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-}
-
-/* Video Section */
-.video-section {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
     position: relative;
-    min-height: 0;
 }
 
+/* Video Container - Fullscreen */
 .video-container {
+    flex: 1;
     position: relative;
-    max-width: 100%;
-    max-height: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 16px;
-    overflow: hidden;
     background: #000;
-    border: 3px solid var(--border);
+    overflow: hidden;
 }
 
 .video-container video {
@@ -152,51 +151,99 @@ html, body {
     100% { opacity: 0; }
 }
 
-/* Recording Hint */
-.recording-hint {
+/* Floating Sidebar */
+.sidebar {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    padding: 12px 20px;
-    border-radius: 16px;
-    font-size: 0.9em;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    padding: 16px;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--accent);
+    border-right: none;
+    border-radius: 20px 0 0 20px;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow);
+    z-index: 10;
+}
+
+.info-card {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--accent);
+    font-size: 0.8em;
     color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.4;
+}
+
+.info-card strong {
+    color: var(--text-primary);
+}
+
+.info-card .info-sub {
+    margin-top: 6px;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.hint-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--accent);
+    font-size: 0.85em;
+    color: var(--text-secondary);
 }
 
-.recording-hint .hint-row {
+.hint-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-.recording-hint kbd {
+.hint-card kbd {
     background: var(--bg-card);
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 6px;
     font-family: inherit;
-    font-size: 0.85em;
+    font-size: 0.9em;
     border: 1px solid var(--border);
+    color: var(--text-primary);
 }
 
-.recording-hint .auto-record-toggle {
+.auto-record-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--accent);
+    font-size: 0.8em;
+    color: var(--text-secondary);
     cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
 }
 
-.recording-hint .auto-record-toggle:hover {
-    opacity: 1;
+.auto-record-card:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.recording-hint .auto-record-toggle input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+.auto-record-card input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
     accent-color: var(--accent);
     cursor: pointer;
 }
@@ -229,17 +276,26 @@ html, body {
 
 /* Pose Label Select */
 .pose-label-select {
-    background: var(--bg-card);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(51, 65, 85, 0.8) 100%);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
     font-family: inherit;
-    font-size: 0.85em;
+    font-size: 0.9em;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .pose-label-select:hover {
+    border-color: var(--accent);
+    box-shadow: 0 2px 12px var(--accent-glow);
+}
+
+.pose-label-select:focus {
+    outline: none;
     border-color: var(--accent);
 }
 
@@ -293,7 +349,7 @@ html, body {
 /* Pose Gallery */
 .pose-gallery {
     background: var(--bg-card);
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--accent);
     padding: 6px 12px;
 }
 
