@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <title>SurfFit - Pose Training</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/training.css">
+</head>
+<body>
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Header -->
+        <header class="app-header">
+            <a href="../" class="brand">SURFPOP</a>
+            <div class="header-actions">
+                <select id="pose-label" class="pose-label-select">
+                    <option value="STAND">STAND</option>
+                    <option value="LYING">LYING</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Video Section -->
+            <div class="video-section">
+                <div class="video-container">
+                    <video id="video" autoplay playsinline muted></video>
+                    <canvas id="skeleton-canvas"></canvas>
+
+                    <!-- Flash Effect -->
+                    <div class="flash-overlay" id="flash-overlay"></div>
+
+                    <!-- Pose Status -->
+                    <div class="pose-status" id="pose-status">
+                        <span class="dot"></span>
+                        <span class="status-text">Warte auf Pose...</span>
+                    </div>
+
+                    <!-- Auto-Record Progress -->
+                    <div class="auto-record-progress hidden" id="auto-record-progress">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="progress-bg" cx="18" cy="18" r="16"/>
+                            <circle class="progress-ring" cx="18" cy="18" r="16" id="progress-ring"/>
+                        </svg>
+                        <span class="progress-seconds" id="progress-seconds">10</span>
+                    </div>
+                </div>
+
+                <!-- Recording Hint -->
+                <div class="recording-hint">
+                    <div class="hint-row">
+                        <span>Aufnehmen mit</span>
+                        <kbd>Space</kbd>
+                        <span>oder</span>
+                        <kbd>Enter</kbd>
+                    </div>
+                    <label class="hint-row auto-record-toggle">
+                        <input type="checkbox" id="auto-record-checkbox">
+                        <span>Auto-Record nach 5s Stillstand</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Pose Gallery -->
+            <div class="pose-gallery">
+                <div class="gallery-header">
+                    <span class="gallery-title">Gespeicherte Posen</span>
+                    <span class="gallery-count" id="gallery-count">0 Posen</span>
+                </div>
+                <div class="gallery-scroll" id="gallery-scroll">
+                    <!-- Pose cards will be inserted here -->
+                    <div class="gallery-empty" id="gallery-empty">
+                        <div class="gallery-empty-icon">📷</div>
+                        <div class="gallery-empty-text">Noch keine Posen gespeichert</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loading-text">Lade Pose Detection...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../lib/keypoints.js"></script>
+    <script src="../lib/keypoint-smoother.js"></script>
+    <script src="../lib/pose-painter.js"></script>
+    <script src="../lib/pose-db.js"></script>
+    <script src="../lib/pose-matchers.js"></script>
+    <script src="../lib/toast.js"></script>
+    <!-- TensorFlow.js + MoveNet (lighter model for training) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.17.0/dist/tf-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.17.0/dist/tf-converter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.17.0/dist/tf-backend-webgl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

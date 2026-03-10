@@ -166,3 +166,29 @@ body::before {
         gap: 24px;
     }
 }
+
+/* Training Link */
+.training-link {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9em;
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+}
+
+.training-link:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.1);
+}
+
+.training-link svg {
+    stroke: currentColor;
+    fill: none;
+}
