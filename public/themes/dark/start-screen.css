@@ -39,3 +39,10 @@
 .start-screen__line--analysis::before {
   background-color: var(--color-brand-block);
 }
+
+.start-screen__guide {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-decoration: none;
+}

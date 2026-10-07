@@ -17,9 +17,20 @@
   font-size: clamp(2rem, min(11vw, 7dvh), 4.5rem);
 }
 
-.start-screen__start {
+.start-screen__actions {
   justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.6rem, 1.5dvh, 1rem);
+}
+
+.start-screen__start {
   font-size: clamp(1.75rem, 5dvh, 2.75rem);
+}
+
+.start-screen__guide {
+  font-size: clamp(1rem, 2.5dvh, 1.3rem);
 }
 
 /* the site footer is the last row, on top of the hero image – never overlapping the content */
