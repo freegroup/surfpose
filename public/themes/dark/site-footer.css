@@ -1,0 +1,25 @@
+.site-footer {
+  background-color: var(--color-bg);
+  color: var(--color-text-muted);
+  border-top-style: solid;
+  border-top-color: var(--color-border);
+}
+
+.site-footer__link {
+  color: var(--color-link);
+}
+
+.site-footer__lock {
+  fill: none;
+  stroke: currentcolor;
+}
+
+.page--start .site-footer {
+  background-color: var(--color-none);
+  background-image: linear-gradient(to top, var(--color-hero-scrim), var(--color-none));
+  color: var(--color-hero-text);
+}
+
+.page--start .site-footer__link {
+  color: var(--color-hero-text);
+}

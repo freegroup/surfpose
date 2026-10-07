@@ -1,0 +1,25 @@
+.clip-player {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.clip-player__bar,
+.clip-player__actions {
+  color: var(--color-text);
+}
+
+.clip-player__speed[aria-pressed='true'],
+.clip-player__cool[aria-pressed='true'],
+.clip-player__reference[aria-pressed='true'] {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.clip-player__skeleton,
+.clip-player__note {
+  color: var(--color-text-muted);
+}
+
+.clip-player__skeleton input {
+  accent-color: var(--color-accent);
+}

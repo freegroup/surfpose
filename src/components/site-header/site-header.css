@@ -1,0 +1,33 @@
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: calc(env(safe-area-inset-top) + 0.75rem) 1.25rem 0.75rem;
+  border-bottom-width: 1px;
+}
+
+/* start page: only the theme switch, floating over the hero image */
+.site-header--overlay {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 10;
+  justify-content: flex-end;
+  border-bottom-width: 0;
+}
+
+.site-header__brand {
+  font-size: 1.1rem;
+}
+
+.site-header__nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-left: auto;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.site-header__link {
+  padding: 0.3rem 0 0.2rem;
+  border-bottom-width: 2px;
+}

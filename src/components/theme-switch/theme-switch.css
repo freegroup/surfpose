@@ -1,0 +1,29 @@
+.theme-switch {
+  display: inline-flex;
+  gap: 2px;
+  min-inline-size: 0;
+  margin-block: 0; /* inline margin comes from the placing component */
+  padding: 3px;
+  border-width: 0;
+}
+
+.theme-switch__option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2rem;
+  cursor: pointer;
+}
+
+.theme-switch__icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.theme-switch__option:has(:focus-visible) {
+  outline-width: 2px;
+  outline-offset: 2px;
+}

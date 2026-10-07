@@ -1,0 +1,41 @@
+.start-screen {
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(var(--color-hero-tint), var(--color-hero-tint)),
+    url('../../img/hero-surf.webp');
+  background-size: cover;
+  background-position: 75% 55%;
+}
+
+.start-screen__logo {
+  color: var(--color-logo);
+}
+
+.start-screen__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+}
+
+.start-screen__line--popup {
+  color: var(--color-on-accent);
+  text-transform: uppercase;
+}
+
+.start-screen__line--popup::before {
+  background-color: var(--color-accent);
+}
+
+.start-screen__line--speed {
+  color: var(--color-hero-text);
+  text-transform: uppercase;
+  text-shadow: var(--shadow-hero-text);
+}
+
+.start-screen__line--analysis {
+  color: var(--color-accent);
+}
+
+.start-screen__line--analysis::before {
+  background-color: var(--color-brand-block);
+}

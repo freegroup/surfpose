@@ -1,0 +1,59 @@
+.clip-player {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: calc(env(safe-area-inset-top) + 0.5rem) 0.75rem calc(env(safe-area-inset-bottom) + 0.75rem);
+}
+
+.clip-player__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.clip-player__video,
+.clip-player__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.clip-player__overlay {
+  pointer-events: none;
+}
+
+.clip-player__bar,
+.clip-player__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.clip-player__speeds {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.clip-player__speed {
+  min-width: 3.25rem;
+}
+
+.clip-player__skeleton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.clip-player__note {
+  margin: 0;
+  font-size: 0.9rem;
+  text-align: center;
+}

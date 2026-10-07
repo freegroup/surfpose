@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Deine Pop-ups – Ocean Kraft Pop-Up Speed Analysis</title>
+  <!-- include:head-meta -->
+  <script src="/theme-init.js"></script>
+  <script type="module" src="/src/app/clips-main.js"></script>
+</head>
+<body class="page">
+  <!-- include:site-header -->
+
+  <main>
+    <section class="clip-gallery">
+      <div class="clip-gallery__head">
+        <h1 class="clip-gallery__title">Deine Pop-ups</h1>
+        <p class="clip-gallery__count"></p>
+      </div>
+
+      <p class="clip-gallery__status" role="status" hidden></p>
+
+      <div class="clip-gallery__empty" hidden>
+        <svg class="clip-gallery__empty-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="5" y="11" width="28" height="26" rx="4"/>
+          <path d="M33 21l10-6v18l-10-6z"/>
+          <path d="M14 30c3-5 7-8 12-9"/>
+        </svg>
+        <h2 class="clip-gallery__empty-title">Noch keine Clips</h2>
+        <p class="clip-gallery__empty-text">Nach jedem erfolgreichen Pop-up speichert die App automatisch ein Video – 10 Sekunden davor und danach, mit deiner Zeit eingeblendet.</p>
+        <a class="button button--primary button--cta" href="index.html#training">Jetzt trainieren</a>
+      </div>
+
+      <ul class="clip-gallery__list"></ul>
+
+      <div class="clip-gallery__notes">
+        <p class="clip-gallery__note">
+          <svg class="clip-gallery__note-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+          <span>Deine Clips sind nur auf diesem Gerät gespeichert. Mit <span aria-hidden="true">🤙</span> Cool oder <span aria-hidden="true">🎯</span> Referenz markierte Clips bleiben dauerhaft, von den übrigen die letzten 20.</span>
+        </p>
+        <p class="clip-gallery__note clip-gallery__install" hidden>
+          <svg class="clip-gallery__note-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>
+          <span>Tipp: Füge die App zum Home-Bildschirm hinzu – sonst kann dein Browser die Clips nach einiger Zeit ohne Nutzung löschen.</span>
+        </p>
+      </div>
+
+      <template class="clip-gallery__item-template">
+        <li class="clip-gallery__item">
+          <button class="clip-gallery__open" type="button">
+            <span class="clip-gallery__media">
+              <img class="clip-gallery__thumb" alt="">
+              <span class="clip-gallery__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>
+              </span>
+              <span class="clip-gallery__marks" aria-hidden="true"></span>
+            </span>
+            <span class="clip-gallery__body">
+              <span class="clip-gallery__time"></span>
+              <span class="clip-gallery__score"></span>
+              <span class="clip-gallery__meta"></span>
+            </span>
+          </button>
+        </li>
+      </template>
+    </section>
+
+    <section class="clip-player" hidden>
+      <div class="clip-player__stage">
+        <video class="clip-player__video" playsinline controls></video>
+        <canvas class="clip-player__overlay"></canvas>
+      </div>
+      <div class="clip-player__bar">
+        <div class="clip-player__speeds" role="group" aria-label="Geschwindigkeit">
+          <button class="button clip-player__speed" type="button" data-speed="0.25">¼×</button>
+          <button class="button clip-player__speed" type="button" data-speed="0.5">½×</button>
+          <button class="button clip-player__speed" type="button" data-speed="1">1×</button>
+        </div>
+        <button class="button clip-player__jump" type="button">Zum Stand</button>
+        <label class="clip-player__skeleton">
+          <input class="clip-player__skeleton-toggle" type="checkbox"> Skelett
+        </label>
+      </div>
+      <div class="clip-player__actions">
+        <button class="button button--primary clip-player__share" type="button">Teilen</button>
+        <button class="button clip-player__cool" type="button" aria-pressed="false"><span aria-hidden="true">🤙</span> Cool</button>
+        <button class="button clip-player__reference" type="button" aria-pressed="false"><span aria-hidden="true">🎯</span> Referenz</button>
+        <button class="button button--danger clip-player__delete" type="button">Löschen</button>
+        <button class="button clip-player__close" type="button">Zurück</button>
+      </div>
+      <p class="clip-player__note" role="status" hidden></p>
+    </section>
+  </main>
+
+  <!-- include:site-footer -->
+</body>
+</html>

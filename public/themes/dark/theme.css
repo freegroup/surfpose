@@ -1,0 +1,70 @@
+/* Theme "dark" – all colors and fonts of this theme. Skin files only use these variables. */
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../../fonts/barlow-condensed-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../../fonts/barlow-condensed-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../../fonts/barlow-condensed-latin-800-italic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+
+  --color-bg: #15172a;
+  --color-surface: #22253a;
+  --color-border: #3a3d58;
+  --color-text: #f4f4f0;
+  --color-text-muted: #a7aabd;
+  --color-link: #c6ff1a;
+  --color-focus: #c6ff1a;
+  --color-accent: #c6ff1a;
+  --color-on-accent: #1a1c2e;
+  --color-brand-block: #2a2c45;
+  --color-danger: #ff5c5c;
+  --color-on-danger: #1a1c2e;
+  --color-success: #8be04e;
+
+  --color-logo: #ecece6;
+  --color-hero-text: #ffffff;
+  --color-hero-tint: #00000000;
+  --color-hero-scrim: #0b0c18cc;
+  --color-none: #00000000;
+
+  --color-state-ready: #8be04e;
+  --color-state-running: #ffb020;
+  --color-clip-logo: #ffffff;
+  --color-clip-shadow: #000000a6;
+  --color-clip-badge-bg: #c6ff1a;
+  --color-clip-badge-text: #1a1c2e;
+  --color-camera-bg: #000000;
+  --color-overlay-bg: #15172ae6;
+  --color-skeleton-line: #c6ff1a;
+  --color-skeleton-point: #ffffff;
+  --color-skeleton-point-weak: #ffb020;
+  --color-skeleton-outline: #15172a;
+
+  --radius-control: 6px;
+  --radius-button: 10px;
+  --radius-card: 12px;
+  --shadow-button: 0 6px 18px #00000059;
+  --shadow-card: 0 4px 14px #00000040;
+  --shadow-card-hover: 0 8px 24px #00000066;
+  --shadow-hero-text: 0 2px 12px #00000066;
+}

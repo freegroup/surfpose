@@ -1,0 +1,16 @@
+/* Layout of all components – common to every theme. Styling lives in public/themes/<theme>/. */
+@import './base.css';
+@import '../components/button/button.css';
+@import '../components/brand-logo/brand-logo.css';
+@import '../components/site-header/site-header.css';
+@import '../components/site-footer/site-footer.css';
+@import '../components/start-screen/start-screen.css';
+@import '../components/legal-page/legal-page.css';
+@import '../components/camera-view/camera-view.css';
+@import '../components/timer/timer.css';
+@import '../components/stats/stats.css';
+@import '../components/result-card/result-card.css';
+@import '../components/setup-hints/setup-hints.css';
+@import '../components/theme-switch/theme-switch.css';
+@import '../components/clip-gallery/clip-gallery.css';
+@import '../components/clip-player/clip-player.css';

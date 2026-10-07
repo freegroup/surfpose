@@ -1,0 +1,107 @@
+.clip-gallery__title,
+.clip-gallery__empty-title {
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.clip-gallery__count,
+.clip-gallery__empty-text,
+.clip-gallery__meta,
+.clip-gallery__note {
+  color: var(--color-text-muted);
+}
+
+.clip-gallery__status {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-left-style: solid;
+  border-left-color: var(--color-danger);
+  border-radius: var(--radius-control);
+}
+
+.clip-gallery__empty {
+  background-color: var(--color-surface);
+  border-style: dashed;
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+.clip-gallery__empty-icon {
+  fill: none;
+  stroke: var(--color-link);
+}
+
+.clip-gallery__open {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.clip-gallery__open:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.clip-gallery__media {
+  background-color: var(--color-camera-bg);
+}
+
+.clip-gallery__play {
+  background-color: var(--color-accent);
+  border-radius: 50%;
+  box-shadow: var(--shadow-button);
+  opacity: 0.92;
+}
+
+.clip-gallery__play svg {
+  fill: var(--color-on-accent);
+}
+
+.clip-gallery__marks {
+  background-color: var(--color-overlay-bg);
+  border-radius: 999px;
+}
+
+.clip-gallery__time {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+}
+
+.clip-gallery__score {
+  color: var(--color-text);
+  border-style: solid;
+  border-color: var(--color-border);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+}
+
+.clip-gallery__score[data-grade='good'] {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.clip-gallery__score[data-grade='ok'] {
+  color: var(--color-state-running);
+  border-color: var(--color-state-running);
+}
+
+.clip-gallery__score[data-grade='weak'] {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.clip-gallery__note {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+}
+
+.clip-gallery__note-icon {
+  fill: none;
+  stroke: var(--color-link);
+}

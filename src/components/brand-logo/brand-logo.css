@@ -1,0 +1,14 @@
+/* Wordmark; sized by the font-size of the place that uses it. */
+.brand-logo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: 0.85;
+  text-align: center;
+}
+
+.brand-logo__wave {
+  width: 100%;
+  height: 0.25em;
+  margin: 0.08em 0;
+}

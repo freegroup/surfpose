@@ -1,0 +1,70 @@
+.result-card {
+  background-color: var(--color-overlay-bg);
+  color: var(--color-text);
+  border-radius: var(--radius-card);
+}
+
+.result-card__time,
+.result-card__score-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+}
+
+.result-card__stance {
+  background-color: var(--color-brand-block);
+  color: var(--color-accent);
+  border-radius: var(--radius-control);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.result-card[data-grade='good'] .result-card__score-value {
+  color: var(--color-success);
+}
+
+.result-card[data-grade='ok'] .result-card__score-value {
+  color: var(--color-state-running);
+}
+
+.result-card[data-grade='weak'] .result-card__score-value {
+  color: var(--color-danger);
+}
+
+.result-card__score-label,
+.result-card__basis,
+.result-card__details summary {
+  color: var(--color-text-muted);
+}
+
+.result-card__score-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.result-card__tips {
+  font-weight: 600;
+}
+
+.result-card__criterion {
+  border-left-style: solid;
+  border-left-color: var(--color-border);
+}
+
+.result-card__criterion[data-status='good'] {
+  border-left-color: var(--color-success);
+}
+
+.result-card__criterion[data-status='warn'] {
+  border-left-color: var(--color-state-running);
+}
+
+.result-card__criterion[data-status='bad'] {
+  border-left-color: var(--color-danger);
+}
+
+.result-card__criterion[data-status='na'] {
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,25 @@
+.button {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius-button);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.button--primary {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: var(--shadow-button);
+}
+
+.button--danger {
+  background-color: var(--color-danger);
+  color: var(--color-on-danger);
+}
+
+.button:disabled {
+  opacity: 0.5;
+}

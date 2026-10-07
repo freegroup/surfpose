@@ -1,0 +1,22 @@
+.stats__item {
+  background-color: var(--color-overlay-bg);
+  border-radius: var(--radius-control);
+}
+
+.stats__label {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stats__value {
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+}
+
+.stats[data-new-best] .stats__best {
+  color: var(--color-accent);
+}

@@ -1,0 +1,70 @@
+/* Theme "bright" – all colors and fonts of this theme. Skin files only use these variables. */
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../../fonts/barlow-condensed-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../../fonts/barlow-condensed-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../../fonts/barlow-condensed-latin-800-italic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-border: #d7d9e2;
+  --color-text: #1a1c2e;
+  --color-text-muted: #5a5d72;
+  --color-link: #2a2c45;
+  --color-focus: #2a2c45;
+  --color-accent: #c6ff1a;
+  --color-on-accent: #1a1c2e;
+  --color-brand-block: #2a2c45;
+  --color-danger: #d93636;
+  --color-on-danger: #ffffff;
+  --color-success: #2f7d12;
+
+  --color-logo: #2a2c45;
+  --color-hero-text: #1a1c2e;
+  --color-hero-tint: #ffffff66;
+  --color-hero-scrim: #ffffffd9;
+  --color-none: #00000000;
+
+  --color-state-ready: #2f7d12;
+  --color-state-running: #c26a00;
+  --color-clip-logo: #ffffff;
+  --color-clip-shadow: #000000a6;
+  --color-clip-badge-bg: #c6ff1a;
+  --color-clip-badge-text: #1a1c2e;
+  --color-camera-bg: #000000;
+  --color-overlay-bg: #ffffffe6;
+  --color-skeleton-line: #c6ff1a;
+  --color-skeleton-point: #2a2c45;
+  --color-skeleton-point-weak: #e07b00;
+  --color-skeleton-outline: #ffffff;
+
+  --radius-control: 6px;
+  --radius-button: 10px;
+  --radius-card: 12px;
+  --shadow-button: 0 6px 18px #2a2c4540;
+  --shadow-card: 0 2px 10px #2a2c451f;
+  --shadow-card-hover: 0 8px 22px #2a2c4533;
+  --shadow-hero-text: 0 1px 10px #ffffff99;
+}

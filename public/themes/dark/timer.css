@@ -1,0 +1,32 @@
+.timer {
+  background-color: var(--color-overlay-bg);
+  border-radius: var(--radius-card);
+}
+
+.timer__value {
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+}
+
+.timer[data-state='ready'] .timer__value {
+  color: var(--color-state-ready);
+}
+
+.timer[data-state='running'] .timer__value {
+  color: var(--color-state-running);
+}
+
+.timer[data-state='done'] .timer__value {
+  color: var(--color-accent);
+}
+
+.timer[data-state='timeout'] .timer__value {
+  color: var(--color-danger);
+}
+
+.timer__hint {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}

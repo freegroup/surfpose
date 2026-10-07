@@ -1,0 +1,9 @@
+.camera-view {
+  background-color: var(--color-camera-bg);
+}
+
+.camera-view__status {
+  background-color: var(--color-overlay-bg);
+  color: var(--color-text);
+  border-radius: var(--radius-card);
+}

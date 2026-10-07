@@ -1,0 +1,23 @@
+.legal-page h1,
+.legal-page h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.legal-page__summary {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  border-style: solid;
+  border-radius: var(--radius-card);
+}
+
+.legal-page em,
+.legal-page__wipe-status {
+  color: var(--color-text-muted);
+}
+
+.legal-page[data-wipe='done'] .legal-page__wipe-status {
+  color: var(--color-success);
+}

@@ -1,0 +1,11 @@
+.brand-logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.brand-logo__wave {
+  fill: currentcolor;
+}

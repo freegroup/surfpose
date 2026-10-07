@@ -1,53 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>SurfFit - Train Your Pop-Up</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/index.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ocean Kraft – Pop-Up Speed Analysis</title>
+  <!-- include:head-meta -->
+  <script src="/theme-init.js"></script>
+  <script type="module" src="/src/app/main.js"></script>
 </head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1 class="headline">Train your<span>Pop-Up</span></h1>
-            <p class="camera-hint">Platziere deinen Laptop seitlich zum Trainingsort, so dass die Kamera dich im Liegen komplett erfasst</p>
-        </header>
+<body class="page page--start">
+  <header class="site-header site-header--overlay">
+    <!-- include:theme-switch -->
+  </header>
 
-        <div class="start-buttons">
-            <a href="movenet/" class="start-btn">
-                <button class="btn">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    START
-                </button>
-                <span class="hint">Lightning - schnell & reaktiv</span>
-            </a>
+  <main>
+    <section class="start-screen">
+      <div class="start-screen__logo" aria-label="Ocean Kraft"><!-- include:brand-logo --></div>
 
-            <a href="blazepose/" class="start-btn">
-                <button class="btn">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="3"/>
-                        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    START
-                </button>
-                <span class="hint">Precision - genau & stabil</span>
-            </a>
+      <h1 class="start-screen__title">
+        <span class="start-screen__line start-screen__line--popup">Pop-Up</span>
+        <span class="start-screen__line start-screen__line--speed">Speed</span>
+        <span class="start-screen__line start-screen__line--analysis">Analysis</span>
+      </h1>
+
+      <button class="button button--primary button--large start-screen__start" type="button">Start</button>
+    </section>
+
+    <section class="camera-view" hidden>
+      <video class="camera-view__video" autoplay playsinline muted></video>
+      <canvas class="camera-view__overlay"></canvas>
+      <p class="camera-view__status" role="status" hidden></p>
+      <button class="button camera-view__close" type="button">Beenden</button>
+      <button class="button camera-view__clips" type="button" hidden>Clips</button>
+
+      <dl class="stats">
+        <div class="stats__item">
+          <dt class="stats__label">Best</dt>
+          <dd class="stats__value stats__best">–</dd>
         </div>
+        <div class="stats__item">
+          <dt class="stats__label">Pop-ups</dt>
+          <dd class="stats__value stats__reps">0</dd>
+        </div>
+      </dl>
 
-        <a href="training/" class="training-link">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            Pose Training
-        </a>
-    </div>
+      <section class="setup-hints" hidden>
+        <h2 class="setup-hints__title">So klappt's</h2>
+        <ul class="setup-hints__list">
+          <li>Kamera seitlich zu dir, möglichst im Querformat.</li>
+          <li>Dein ganzer Körper ist im Bild – im Liegen und im Stehen.</li>
+          <li>Gutes Licht, Kleidung mit Kontrast zum Hintergrund.</li>
+          <li>Leg dich in die Paddelposition, Kopf hoch, Blick nach vorn.</li>
+        </ul>
+        <p class="setup-hints__privacy">Alles bleibt auf deinem Gerät – kein Upload, kein Tracking.</p>
+      </section>
+
+      <section class="result-card" hidden aria-live="polite">
+        <div class="result-card__head">
+          <span class="result-card__time"></span>
+          <span class="result-card__stance"></span>
+          <span class="result-card__score">
+            <span class="result-card__score-value"></span>
+            <span class="result-card__score-label">Punkte</span>
+          </span>
+        </div>
+        <ul class="result-card__tips"></ul>
+        <details class="result-card__details">
+          <summary>Alle Kriterien</summary>
+          <ul class="result-card__criteria"></ul>
+        </details>
+        <p class="result-card__basis"></p>
+        <template class="result-card__row-template">
+          <li class="result-card__criterion">
+            <span class="result-card__criterion-label"></span>
+            <span class="result-card__criterion-value"></span>
+          </li>
+        </template>
+      </section>
+
+      <div class="timer" data-state="waiting" aria-live="polite">
+        <span class="timer__value">0,00 s</span>
+        <p class="timer__hint"></p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- include:site-footer -->
 </body>
 </html>

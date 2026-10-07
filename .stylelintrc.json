@@ -1,0 +1,93 @@
+{
+  "rules": {
+    "color-no-invalid-hex": true,
+    "declaration-block-no-duplicate-properties": true
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/**/*.css"
+      ],
+      "rules": {
+        "property-disallowed-list": [
+          "/color$/",
+          "/^background/",
+          "/^border(-top|-right|-bottom|-left)?$/",
+          "/^border(-top|-right|-bottom|-left)?-style$/",
+          "/radius/",
+          "/shadow/",
+          "font",
+          "font-family",
+          "font-weight",
+          "font-style",
+          "letter-spacing",
+          "text-transform",
+          "/^text-decoration/",
+          "opacity",
+          "filter",
+          "backdrop-filter",
+          "fill",
+          "stroke",
+          "outline",
+          "outline-style"
+        ]
+      }
+    },
+    {
+      "files": [
+        "public/themes/*/*.css"
+      ],
+      "rules": {
+        "property-allowed-list": [
+          "color",
+          "/^background/",
+          "/^border(-top|-right|-bottom|-left)?-(color|style)$/",
+          "/radius/",
+          "/shadow/",
+          "font-family",
+          "font-weight",
+          "font-style",
+          "letter-spacing",
+          "text-transform",
+          "/^text-decoration/",
+          "opacity",
+          "filter",
+          "backdrop-filter",
+          "fill",
+          "stroke",
+          "outline-color",
+          "outline-style",
+          "accent-color",
+          "caret-color",
+          "-webkit-tap-highlight-color"
+        ],
+        "color-no-hex": true,
+        "color-named": "never",
+        "function-disallowed-list": [
+          "rgb",
+          "rgba",
+          "hsl",
+          "hsla"
+        ]
+      }
+    },
+    {
+      "files": [
+        "public/themes/*/theme.css"
+      ],
+      "rules": {
+        "property-allowed-list": [
+          "/^--/",
+          "font-family",
+          "src",
+          "font-weight",
+          "font-style",
+          "font-display"
+        ],
+        "color-no-hex": null,
+        "color-named": null,
+        "function-disallowed-list": null
+      }
+    }
+  ]
+}

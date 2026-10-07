@@ -1,0 +1,25 @@
+.theme-switch {
+  background-color: var(--color-overlay-bg);
+  border-radius: 999px;
+  box-shadow: var(--shadow-button);
+}
+
+.theme-switch__option {
+  color: var(--color-text-muted);
+  border-radius: 999px;
+}
+
+.theme-switch__option:has(:checked) {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.theme-switch__option:has(:focus-visible) {
+  outline-style: solid;
+  outline-color: var(--color-focus);
+}
+
+.theme-switch__icon {
+  fill: none;
+  stroke: currentcolor;
+}
