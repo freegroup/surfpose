@@ -86,6 +86,20 @@ describe('reference profile from 🎯 clips', () => {
     expect(hi - lo).toBeLessThan(40); // narrower than the starting 110–150
   });
 
+  it('identical references give valid ranges around their value and score themselves fully', () => {
+    const profile = buildProfile([good, good, good]);
+    for (const [key, [lo, hi]] of Object.entries(profile.targets)) {
+      expect(lo, key).toBeLessThan(hi);
+      const value = /** @type {number} */ (good[key]);
+      if (typeof value === 'number') {
+        expect(value, key).toBeGreaterThanOrEqual(lo);
+        expect(value, key).toBeLessThanOrEqual(hi);
+      }
+    }
+    const self = evaluateStance(measure('stance'), profile);
+    for (const c of self.criteria) if (c.score !== null) expect(c.score, c.key).toBeGreaterThan(90);
+  });
+
   it('drops an outlier reference', () => {
     const refs = [118, 120, 121, 122, 124, 158].map((frontKnee) => ({ ...good, frontKnee }));
     const [, hi] = buildProfile(refs).targets.frontKnee;

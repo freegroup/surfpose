@@ -41,13 +41,16 @@ export function buildProfile(references) {
 
     const m = median(values);
     const half = Math.max(2 * spread(values), c.minHalfWidth);
+    const width = 2 * c.minHalfWidth;
     const [min, max] = c.limits;
     let lo = Math.max(m - half, min);
     let hi = Math.min(m + half, max);
-    // a reference outside the guard rails ends up at the edge, still with a usable width
-    if (hi - lo < 2 * c.minHalfWidth) {
-      if (hi === max) lo = Math.max(min, max - 2 * c.minHalfWidth);
-      else hi = Math.min(max, min + 2 * c.minHalfWidth);
+    // A reference near a guard rail gets clipped there; widen on the other side so the range
+    // stays usable. Widen from the side that was actually clipped – deciding by `hi === max`
+    // misfired on float rounding (0.2999… < 0.3) and produced inverted ranges like 1.51–1.3.
+    if (hi - lo < width) {
+      if (m - half < min) hi = Math.min(max, lo + width);
+      else lo = Math.max(min, hi - width);
     }
     targets[key] = [lo, hi];
   }
