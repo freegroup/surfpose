@@ -30,15 +30,15 @@
       <p class="dev-panel__status" role="status" hidden></p>
       <table class="dev-panel__table">
         <thead>
-          <tr><th>Key</th><th title="Startwert aus config.js">Soll</th><th title="Wie du gerade stehst">Ist</th><th title="Womit verglichen wird">Referenz</th><th>Spielraum</th><th><span class="visually-hidden">Zurücksetzen</span></th></tr>
+          <tr><th>Key</th><th title="Wie du gerade stehst">Ist</th><th title="Startwert aus config.js">Soll</th><th title="Womit verglichen wird">Referenz</th><th>Spielraum</th><th><span class="visually-hidden">Zurücksetzen</span></th></tr>
         </thead>
         <tbody class="dev-panel__rows"></tbody>
       </table>
       <template class="dev-panel__row-template">
         <tr class="dev-panel__row">
           <td><span class="dev-panel__json"></span><span class="dev-panel__label"></span></td>
-          <td class="dev-panel__target"></td>
           <td class="dev-panel__current"></td>
+          <td class="dev-panel__target"></td>
           <td class="dev-panel__reference"></td>
           <td class="dev-panel__range"></td>
           <td>
@@ -48,7 +48,7 @@
           </td>
         </tr>
       </template>
-      <p class="dev-panel__hint"><b>Soll</b> = Startwert aus config.js · <b>Ist</b> = wie du gerade stehst ·
+      <p class="dev-panel__hint"><b>Ist</b> = wie du gerade stehst · <b>Soll</b> = Startwert aus config.js ·
         <b>Referenz</b> = womit verglichen wird. Gelenk im Bild oder Zeile antippen: der Ist-Wert wird zur neuen
         Referenz; der Kreispfeil setzt sie auf Soll zurück. Gemessen wird im Stehen – seitlich zur Kamera, Blick zur Nose.</p>
     </section>
