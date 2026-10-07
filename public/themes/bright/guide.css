@@ -1,0 +1,58 @@
+.guide h1,
+.guide h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.guide__lead,
+.guide__yeah {
+  color: var(--color-text-muted);
+}
+
+.guide__yeah strong {
+  color: var(--color-accent);
+}
+
+/* SVG figure colors */
+.guide-figure__ground { stroke: var(--color-border); }
+.guide-figure__limb { stroke: var(--color-border); }
+.guide-figure__torso { fill: var(--color-surface); stroke: var(--color-border); }
+.guide-figure__head { fill: var(--color-surface); stroke: var(--color-border); }
+.guide-figure__bone { stroke: var(--color-accent); }
+.guide-figure__joints circle { fill: var(--color-accent); }
+.guide-figure__gauge path { fill: none; stroke: var(--color-text-muted); }
+.guide-figure__marker circle { fill: var(--color-accent); }
+.guide-figure__marker text { fill: var(--color-on-accent); font-family: var(--font-display); font-weight: 800; }
+
+/* numbered list badges */
+.guide-points__num {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+/* criteria rows */
+.guide-criteria div {
+  border-bottom-style: solid;
+  border-bottom-color: var(--color-border);
+}
+
+.guide-criteria dt {
+  color: var(--color-text);
+}
+
+.guide-criteria dd {
+  color: var(--color-text-muted);
+}
+
+.guide-criteria__w {
+  color: var(--color-text-muted);
+}
+
+.guide a {
+  color: var(--color-link);
+}

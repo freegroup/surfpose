@@ -56,6 +56,8 @@ const htmlPartials = {
 export default defineConfig({
   // HTTPS is required for camera access on phones in the LAN: `npm run dev:phone`
   plugins: [htmlPartials, cspPlugin, serveMediapipeRaw, ...(process.env.HTTPS ? [basicSsl()] : [])],
+  // Set BASE_URL=/surfpose/ when deploying to gh-pages (freegroup.github.io/surfpose/).
+  base: process.env.BASE_URL ?? '/',
   build: {
     rollupOptions: {
       input: {
@@ -63,6 +65,7 @@ export default defineConfig({
         clips: 'clips.html',
         datenschutz: 'datenschutz.html',
         impressum: 'impressum.html',
+        'guter-stand': 'guter-stand.html',
       },
     },
   },

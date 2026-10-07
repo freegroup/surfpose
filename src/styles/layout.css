@@ -6,11 +6,13 @@
 @import '../components/site-footer/site-footer.css';
 @import '../components/start-screen/start-screen.css';
 @import '../components/legal-page/legal-page.css';
+@import '../components/guide/guide.css';
 @import '../components/camera-view/camera-view.css';
 @import '../components/timer/timer.css';
 @import '../components/stats/stats.css';
 @import '../components/result-card/result-card.css';
 @import '../components/setup-hints/setup-hints.css';
+@import '../components/celebration/celebration.css';
 @import '../components/theme-switch/theme-switch.css';
 @import '../components/clip-gallery/clip-gallery.css';
 @import '../components/clip-player/clip-player.css';

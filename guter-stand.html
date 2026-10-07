@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Guter Stand – Ocean Kraft Pop-Up Speed Analysis</title>
+  <!-- include:head-meta -->
+  <script src="/theme-init.js"></script>
+  <script type="module" src="/src/app/guide-main.js"></script>
+</head>
+<body class="page">
+  <!-- include:site-header -->
+
+  <main>
+    <article class="guide">
+      <h1>Was ist ein guter Stand?</h1>
+      <p class="guide__lead">
+        Nach jedem Pop-up – und im Stand-Training auch beim bloßen Stehen – bewertet die App deine
+        Surf-Stance. Hier siehst du, worauf sie achtet und wie die Punktzahl entsteht. Alles passiert
+        auf deinem Gerät; die Zeichnung ist ein neutrales Modell, kein echtes Bild von dir.
+      </p>
+
+      <figure class="guide-figure">
+        <svg class="guide-figure__svg" viewBox="120 0 262 392" role="img"
+             aria-label="Modell einer Person in einer guten Surf-Stance mit eingezeichnetem Skelett">
+          <!-- ground -->
+          <line class="guide-figure__ground" x1="140" y1="335" x2="345" y2="335" />
+
+          <!-- "Puppe": anonymized body behind the skeleton -->
+          <g class="guide-figure__body">
+            <path class="guide-figure__limb" d="M284.9 81.6 L313.4 123.4 M313.4 123.4 L332.4 151.9 M212.7 81.6 L180.4 123.4 M180.4 123.4 L161.4 151.9" />
+            <path class="guide-figure__limb" d="M250.7 170.9 L313.4 241.2 M313.4 241.2 L290.6 319.1 M290.6 319.1 L321 330.5 M212.7 170.9 L227.9 246.9 M227.9 246.9 L170.9 319.1 M170.9 319.1 L201.3 330.5" />
+            <path class="guide-figure__torso" d="M212.7 81.6 L284.9 81.6 L250.7 170.9 L212.7 170.9 Z" />
+            <path class="guide-figure__limb" d="M280.1 37 L248.8 81.6" />
+            <circle class="guide-figure__head" cx="280.1" cy="37" r="22" />
+          </g>
+
+          <!-- skeleton overlay -->
+          <g class="guide-figure__skeleton">
+            <path class="guide-figure__bone" d="M248.8 81.6 L231.7 170.9 M212.7 81.6 L284.9 81.6 M212.7 170.9 L250.7 170.9 M284.9 81.6 L313.4 123.4 M313.4 123.4 L332.4 151.9 M212.7 81.6 L180.4 123.4 M180.4 123.4 L161.4 151.9 M250.7 170.9 L313.4 241.2 M313.4 241.2 L290.6 319.1 M290.6 319.1 L321 330.5 M212.7 170.9 L227.9 246.9 M227.9 246.9 L170.9 319.1 M170.9 319.1 L201.3 330.5 M280.1 37 L248.8 81.6" />
+            <g class="guide-figure__joints">
+              <circle cx="284.9" cy="81.6" r="5" /><circle cx="212.7" cy="81.6" r="5" />
+              <circle cx="313.4" cy="123.4" r="5" /><circle cx="180.4" cy="123.4" r="5" />
+              <circle cx="332.4" cy="151.9" r="5" /><circle cx="161.4" cy="151.9" r="5" />
+              <circle cx="250.7" cy="170.9" r="5" /><circle cx="212.7" cy="170.9" r="5" />
+              <circle cx="313.4" cy="241.2" r="5" /><circle cx="227.9" cy="246.9" r="5" />
+              <circle cx="290.6" cy="319.1" r="5" /><circle cx="170.9" cy="319.1" r="5" />
+            </g>
+          </g>
+
+          <!-- gauges + numbered markers -->
+          <g class="guide-figure__gauge">
+            <!-- Blick nach vorn -->
+            <path d="M292 32 L330 24" marker-end="url(#guide-arrow)" />
+            <!-- Oberkörper leicht nach vorn -->
+            <path d="M231.7 170.9 L248.8 81.6" marker-end="url(#guide-arrow)" />
+            <!-- Standbreite -->
+            <path d="M201.3 348 L201.3 340 L321 340 L321 348" />
+            <defs>
+              <marker id="guide-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" />
+              </marker>
+            </defs>
+          </g>
+          <g class="guide-figure__markers">
+            <g class="guide-figure__marker"><circle cx="332" cy="235" r="13" /><text x="332" y="235">1</text></g>
+            <g class="guide-figure__marker"><circle cx="226" cy="120" r="13" /><text x="226" y="120">2</text></g>
+            <g class="guide-figure__marker"><circle cx="261" cy="366" r="13" /><text x="261" y="366">3</text></g>
+            <g class="guide-figure__marker"><circle cx="320" cy="16" r="13" /><text x="320" y="16">4</text></g>
+          </g>
+        </svg>
+        <figcaption class="guide-figure__caption">Modell, kein echtes Foto – nur Pose-Punkte und Verbindungen.</figcaption>
+      </figure>
+
+      <ol class="guide-points">
+        <li><span class="guide-points__num">1</span>
+          <strong>Knie gebeugt</strong> – vorderes und hinteres Knie je etwa <b>110°–150°</b>.
+          Tief und federnd, nicht durchgestreckt. <em>(zählt am stärksten)</em>
+        </li>
+        <li><span class="guide-points__num">2</span>
+          <strong>Oberkörper leicht nach vorn</strong> Richtung Nose, etwa <b>10°–40°</b> – nicht in der Hüfte abknicken.
+        </li>
+        <li><span class="guide-points__num">3</span>
+          <strong>Breiter Stand</strong> – Füße etwa <b>1,2–1,8×</b> schulterbreit, Gewicht mittig zwischen den Füßen.
+        </li>
+        <li><span class="guide-points__num">4</span>
+          <strong>Blick nach vorn</strong> zur Nose, Kopf oben – nicht aufs Board schauen.
+        </li>
+      </ol>
+
+      <h2>Alle Kriterien</h2>
+      <p>Die App misst über das kurze Standfenster den Median jedes Werts (robust gegen einzelne Ausreißer).
+         Winkel kommen aus 3D-Gelenkdaten, Neigungen aus dem Bild – alles relativ zur Rumpflänge, also
+         unabhängig vom Kameraabstand.</p>
+      <dl class="guide-criteria">
+        <div><dt>Vorderes / hinteres Knie <span class="guide-criteria__w">×2</span></dt><dd>110°–150°</dd></div>
+        <div><dt>Standbreite <span class="guide-criteria__w">×1,5</span></dt><dd>1,2–1,8 × Schulterbreite</dd></div>
+        <div><dt>Ohne Knie aufgestanden <span class="guide-criteria__w">×1,5</span></dt><dd>direkt auf die Füße (nur mit Pop-up messbar)</dd></div>
+        <div><dt>Hüfte <span class="guide-criteria__w">×1</span></dt><dd>110°–175°, nicht abknicken</dd></div>
+        <div><dt>Oberkörper-Neigung <span class="guide-criteria__w">×1</span></dt><dd>10°–40° nach vorn</dd></div>
+        <div><dt>Blick (Pitch) <span class="guide-criteria__w">×1</span></dt><dd>−20°…+20°</dd></div>
+        <div><dt>Schwerpunkt <span class="guide-criteria__w">×1</span></dt><dd>Hüfte mittig zwischen den Füßen (0,4–0,6)</dd></div>
+        <div><dt>Blick Richtung Nose <span class="guide-criteria__w">×0,5</span></dt><dd>Kopf in Fahrtrichtung gedreht</dd></div>
+        <div><dt>Kopf zum Körper <span class="guide-criteria__w">×0,5</span></dt><dd>0°–35°, Kopf über dem Rumpf</dd></div>
+        <div><dt>Kopfposition <span class="guide-criteria__w">×0,5</span></dt><dd>über der Mitte / vorderen Hälfte</dd></div>
+      </dl>
+
+      <h2>Wie der Score entsteht</h2>
+      <p>Jedes Kriterium gibt <b>0–100 Punkte</b>: liegt der Wert im Zielbereich, gibt es 100; außerhalb
+         fällt die Punktzahl mit wachsendem Abstand bis auf 0. Der Gesamtscore ist der
+         <strong>gewichtete Durchschnitt</strong> aller messbaren Kriterien – gebeugte Knie und ein
+         breiter Stand (×2 bzw. ×1,5) zählen also mehr als die Kopfhaltung (×0,5). Kriterien, deren
+         Punkte wegen verdeckter Körperteile unsicher sind, bleiben „nicht bewertbar" und fließen nicht ein.</p>
+      <p class="guide__yeah">Im Stand-Training erscheint ab <b>80 Punkten</b> ein großes „Yeah!".</p>
+
+      <h2>Deine 🎯 Referenz-Clips</h2>
+      <p>Standardmäßig vergleicht die App mit den eingebauten Startwerten. Markierst du in der
+         <a href="clips.html">Clip-Übersicht</a> gelungene Stände mit <b>🎯 Referenz</b>, lernt sie deinen Stil:</p>
+      <ul>
+        <li>Erst <b>ab 3</b> Referenz-Clips ersetzen deine Werte die Startwerte.</li>
+        <li>Pro Kriterium wird ein neuer Zielbereich aus <b>Median ± Streuung</b> deiner Referenzen gebildet, Ausreißer fliegen raus.</li>
+        <li>Alles bleibt in <b>Leitplanken</b> geklemmt – ein versehentlich markierter Fehler kann „gut" nie beliebig verschieben.</li>
+        <li><b>🤙 Cool</b> markiert nur zum Behalten und ändert die Bewertung <b>nicht</b>.</li>
+      </ul>
+      <p>Die Ergebnis-Karte zeigt dir immer die Basis an – „Startwerte" oder „deine N Referenz-Clips".</p>
+    </article>
+  </main>
+
+  <!-- include:site-footer -->
+</body>
+</html>
