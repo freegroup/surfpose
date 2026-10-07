@@ -1,9 +1,13 @@
 // All tunable values in one place. Detection thresholds are starting values and get
 // calibrated with real recordings (plan step 5).
 
+// Vite replaces BASE_URL at build time ('/' in dev, '/surfpose/' on gh-pages), so the
+// self-hosted model and runtime load from our own server under any deploy sub-path.
+const BASE = import.meta.env.BASE_URL;
+
 export const POSE_MODEL = {
-  wasmPath: '/mediapipe',
-  modelPath: '/models/pose_landmarker_full.task',
+  wasmPath: `${BASE}mediapipe`,
+  modelPath: `${BASE}models/pose_landmarker_full.task`,
 };
 
 /** One-Euro filter for landmarks: low jitter when still, little lag when fast. */

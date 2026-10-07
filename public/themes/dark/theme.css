@@ -46,6 +46,9 @@
   --color-hero-text: #ffffff;
   --color-hero-tint: #00000000;
   --color-hero-scrim: #0b0c18cc;
+  --color-glass-bg: #0b0c18b3;
+  --color-acryl-bg: #1b1e34b3;
+  --color-acryl-border: #ffffff26;
   --color-none: #00000000;
 
   --color-state-ready: #8be04e;

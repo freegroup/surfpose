@@ -42,6 +42,9 @@
 
 .start-screen__guide {
   color: var(--color-accent);
+  background-color: var(--color-glass-bg);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
   font-family: var(--font-display);
   font-weight: 600;
   text-decoration: none;

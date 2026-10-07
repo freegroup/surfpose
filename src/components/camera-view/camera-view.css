@@ -36,10 +36,37 @@
   z-index: 2;
   width: min(90%, 28rem);
   margin: 0;
-  padding: 1rem 1.25rem;
+  padding: 2.5rem 1.25rem 1.25rem;
+  overflow: hidden;
+  border-width: 1px;
   transform: translate(-50%, -50%);
   font-size: 1.25rem;
   text-align: center;
+}
+
+/* animated water surface along the top edge – shape + motion here, color in the skin */
+.camera-view__status::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.4rem;
+  --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='24' preserveAspectRatio='none'%3E%3Cpath d='M0 0H80V14Q60 24 40 14T0 14Z' fill='black'/%3E%3C/svg%3E");
+  mask: var(--wave) repeat-x 0 0 / 80px 100%;
+  -webkit-mask: var(--wave) repeat-x 0 0 / 80px 100%;
+  animation: camera-view-wave 2.8s linear infinite;
+}
+
+@keyframes camera-view-wave {
+  to {
+    mask-position: 80px 0;
+    -webkit-mask-position: 80px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camera-view__status::before { animation: none; }
 }
 
 .camera-view__close {

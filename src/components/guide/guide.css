@@ -21,6 +21,8 @@
   flex-direction: column;
   align-items: center;
   margin: 2rem 0 2.5rem;
+  padding: 1.5rem 1rem 1.25rem;
+  border-width: 1px;
 }
 
 .guide-figure__svg {

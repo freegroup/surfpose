@@ -30,6 +30,7 @@
 }
 
 .start-screen__guide {
+  padding: 0.5em 1em;
   font-size: clamp(1rem, 2.5dvh, 1.3rem);
 }
 

@@ -15,6 +15,15 @@
   color: var(--color-accent);
 }
 
+/* figure panel – subtle depth so the page doesn't read flat */
+.guide-figure {
+  background-image: linear-gradient(160deg, var(--color-surface), var(--color-bg));
+  border-style: solid;
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
 /* SVG figure colors */
 .guide-figure__ground { stroke: var(--color-border); }
 .guide-figure__limb { stroke: var(--color-border); }

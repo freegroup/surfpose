@@ -3,9 +3,17 @@
 }
 
 .camera-view__status {
-  background-color: var(--color-overlay-bg);
+  background-color: var(--color-acryl-bg);
   color: var(--color-text);
+  border-style: solid;
+  border-color: var(--color-acryl-border);
   border-radius: var(--radius-card);
+  backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: var(--shadow-card);
+}
+
+.camera-view__status::before {
+  background-color: var(--color-accent);
 }
 
 .camera-view::after {
