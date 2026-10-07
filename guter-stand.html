@@ -13,11 +13,15 @@
 
   <main>
     <article class="guide">
-      <h1>Was ist ein guter Stand?</h1>
+      <h1 class="guide-hero">
+        <span class="guide-hero__kicker">Aufspringen kann jeder.</span>
+        <span class="guide-hero__line guide-hero__line--a">Guter</span>
+        <span class="guide-hero__line guide-hero__line--b">Stand</span>
+      </h1>
       <p class="guide__lead">
-        Nach jedem Pop-up – und im Stand-Training auch beim bloßen Stehen – bewertet die App deine
-        Surf-Stance. Hier siehst du, worauf sie achtet und wie die Punktzahl entsteht. Alles passiert
-        auf deinem Gerät; die Zeichnung ist ein neutrales Modell, kein echtes Bild von dir.
+        Der Pop-up bringt dich hoch – der <strong>Stand</strong> bringt dich übers Wasser. Die App friert genau
+        den Moment ein, in dem du oben bist, und sagt dir in Zahlen, wie solide du stehst.
+        Alles läuft auf deinem Gerät, kein Video geht irgendwohin.
       </p>
 
       <figure class="guide-figure">
@@ -74,27 +78,31 @@
       <ol class="guide-points">
         <li>
           <span class="guide-points__num">1</span>
-          <span><strong>Knie gebeugt</strong> – vorderes und hinteres Knie je etwa <b>110°–150°</b>.
-          Tief und federnd, nicht durchgestreckt. <em>(zählt am stärksten)</em></span>
+          <span><strong>Rein in die Knie!</strong> Beide Beine <b>110°–150°</b> – tief, federnd, bereit für
+          alles. Durchgestreckte Beine schmeißen dich beim ersten Chop ab. <em>(zählt am meisten)</em></span>
         </li>
         <li>
           <span class="guide-points__num">2</span>
-          <span><strong>Oberkörper leicht nach vorn</strong> Richtung Nose, etwa <b>10°–40°</b> – nicht in der Hüfte abknicken.</span>
+          <span><strong>Brust zur Nose</strong>, <b>10°–40°</b> nach vorn. Druck aufs Board – aber nicht
+          in der Hüfte einklappen wie ein Taschenmesser.</span>
         </li>
         <li>
           <span class="guide-points__num">3</span>
-          <span><strong>Breiter Stand</strong> – Füße etwa <b>1,2–1,8×</b> schulterbreit, Gewicht mittig zwischen den Füßen.</span>
+          <span><strong>Breit und mittig stehen</strong> – Füße <b>1,2–1,8×</b> schulterbreit, Gewicht
+          schön in der Mitte. Zu eng wackelt, zu breit friert ein.</span>
         </li>
         <li>
           <span class="guide-points__num">4</span>
-          <span><strong>Blick nach vorn</strong> zur Nose, Kopf oben – nicht aufs Board schauen.</span>
+          <span><strong>Blick zur Nose</strong>, Kopf hoch. Wer aufs Board glotzt, fällt ins Wasser –
+          du fährst dahin, wohin du schaust.</span>
         </li>
       </ol>
 
       <h2>Alle Kriterien</h2>
-      <p>Die App misst über das kurze Standfenster den Median jedes Werts (robust gegen einzelne Ausreißer).
-         Winkel kommen aus 3D-Gelenkdaten, Neigungen aus dem Bild – alles relativ zur Rumpflänge, also
-         unabhängig vom Kameraabstand.</p>
+      <p>Die vier oben sind das Herzstück – aber die App schaut genauer hin. Hier die komplette Liste
+         mit Gewichtung: je größer das <b>×</b>, desto härter zählt's. Gemessen wird der Median über
+         dein kurzes Standfenster (robust gegen Zappeln), Winkel aus 3D-Gelenkdaten, Neigungen aus dem
+         Bild – alles relativ zur Rumpflänge, also egal wie weit die Kamera weg steht.</p>
       <dl class="guide-criteria">
         <div><dt>Vorderes / hinteres Knie <span class="guide-criteria__w">×2</span></dt><dd>110°–150°</dd></div>
         <div><dt>Standbreite <span class="guide-criteria__w">×1,5</span></dt><dd>1,2–1,8 × Schulterbreite</dd></div>
@@ -109,23 +117,24 @@
       </dl>
 
       <h2>Wie der Score entsteht</h2>
-      <p>Jedes Kriterium gibt <b>0–100 Punkte</b>: liegt der Wert im Zielbereich, gibt es 100; außerhalb
-         fällt die Punktzahl mit wachsendem Abstand bis auf 0. Der Gesamtscore ist der
-         <strong>gewichtete Durchschnitt</strong> aller messbaren Kriterien – gebeugte Knie und ein
-         breiter Stand (×2 bzw. ×1,5) zählen also mehr als die Kopfhaltung (×0,5). Kriterien, deren
-         Punkte wegen verdeckter Körperteile unsicher sind, bleiben „nicht bewertbar" und fließen nicht ein.</p>
-      <p class="guide__yeah">Im Stand-Training erscheint ab <b>80 Punkten</b> ein großes „Yeah!".</p>
+      <p>Jedes Kriterium bringt <b>0–100 Punkte</b>: triffst du den Zielbereich, volle Punktzahl – je
+         weiter weg, desto weniger. Unterm Strich steht der <strong>gewichtete Schnitt</strong> aller
+         messbaren Kriterien: tiefe Knie und ein breiter Stand (×2 bzw. ×1,5) ziehen härter als deine
+         Kopfhaltung (×0,5). Was die Kamera nicht sauber sieht, bleibt „nicht bewertbar" und zählt gar
+         nicht erst mit.</p>
+      <p class="guide__yeah">Ab <b>80 Punkten</b> knallt im Stand-Training ein fettes „Yeah!" über den Screen.</p>
 
       <h2>Deine 🎯 Referenz-Clips</h2>
-      <p>Standardmäßig vergleicht die App mit den eingebauten Startwerten. Markierst du in der
-         <a href="clips.html">Clip-Übersicht</a> gelungene Stände mit <b>🎯 Referenz</b>, lernt sie deinen Stil:</p>
+      <p>Serienmäßig vergleicht die App mit ihren eingebauten Startwerten. Aber du bist nicht Standard:
+         Markier deine besten Stände in der <a href="clips.html">Clip-Übersicht</a> mit
+         <b>🎯 Referenz</b> – und sie lernt deinen Style.</p>
       <ul>
-        <li>Erst <b>ab 3</b> Referenz-Clips ersetzen deine Werte die Startwerte.</li>
-        <li>Pro Kriterium wird ein neuer Zielbereich aus <b>Median ± Streuung</b> deiner Referenzen gebildet, Ausreißer fliegen raus.</li>
-        <li>Alles bleibt in <b>Leitplanken</b> geklemmt – ein versehentlich markierter Fehler kann „gut" nie beliebig verschieben.</li>
-        <li><b>🤙 Cool</b> markiert nur zum Behalten und ändert die Bewertung <b>nicht</b>.</li>
+        <li>Ab <b>3 Referenzen</b> übernehmen deine Werte das Steuer.</li>
+        <li>Pro Kriterium entsteht ein neuer Zielbereich aus <b>Median ± Streuung</b> – Ausreißer fliegen raus.</li>
+        <li>Alles bleibt in <b>Leitplanken</b>: ein aus Versehen markierter Faceplant macht Mist nie zum Maßstab.</li>
+        <li><b>🤙 Cool</b> ist nur zum Behalten und ändert an der Bewertung <b>nix</b>.</li>
       </ul>
-      <p>Die Ergebnis-Karte zeigt dir immer die Basis an – „Startwerte" oder „deine N Referenz-Clips".</p>
+      <p>Die Ergebnis-Karte verrät dir immer, womit sie vergleicht – „Startwerte" oder „deine N Referenz-Clips".</p>
     </article>
   </main>
 

@@ -1,9 +1,43 @@
-.guide h1,
+.guide-hero,
 .guide h2 {
   font-family: var(--font-display);
   font-weight: 800;
   font-style: italic;
+}
+
+.guide-hero__kicker {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.guide-hero__line--a,
+.guide-hero__line--b,
+.guide h2 {
   text-transform: uppercase;
+}
+
+.guide-hero__line--a {
+  color: var(--color-on-accent);
+}
+
+.guide-hero__line--a::before {
+  background-color: var(--color-accent);
+}
+
+.guide-hero__line--b {
+  color: var(--color-accent);
+  border-radius: var(--radius-control);
+}
+
+.guide-hero__line--b::before {
+  background-color: var(--color-brand-block);
+  border-radius: var(--radius-control);
+}
+
+.guide h2 {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  border-radius: var(--radius-control);
 }
 
 .guide__lead,
