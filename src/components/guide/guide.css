@@ -30,12 +30,6 @@
   height: auto;
 }
 
-.guide-figure__caption {
-  margin-top: 0.6rem;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
 /* figure geometry – colors live in the theme skin */
 .guide-figure__ground { stroke-width: 2; stroke-dasharray: 4 6; }
 .guide-figure__limb { stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; }
