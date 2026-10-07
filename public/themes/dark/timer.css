@@ -30,3 +30,11 @@
   color: var(--color-text-muted);
   font-weight: 600;
 }
+
+.timer__reps {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}

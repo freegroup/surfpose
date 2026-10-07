@@ -62,6 +62,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
+        training: 'training.html',
         clips: 'clips.html',
         datenschutz: 'datenschutz.html',
         impressum: 'impressum.html',

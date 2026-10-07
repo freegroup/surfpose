@@ -1,6 +1,6 @@
 .result-card {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 4.75rem);
+  top: 1rem;
   left: 50%;
   z-index: 4;
   display: flex;

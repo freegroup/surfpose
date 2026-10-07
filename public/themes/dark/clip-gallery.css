@@ -105,3 +105,10 @@
   fill: none;
   stroke: var(--color-link);
 }
+
+.clip-gallery__best {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+}

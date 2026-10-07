@@ -9,12 +9,12 @@
   <script type="module" src="/src/app/main.js"></script>
 </head>
 <body class="page">
-  <header class="site-header site-header--overlay">
-    <!-- include:theme-switch -->
-  </header>
-
   <main>
     <section class="start-screen">
+      <header class="site-header site-header--overlay">
+        <!-- include:theme-switch -->
+      </header>
+
       <div class="start-screen__logo" aria-label="Ocean Kraft"><!-- include:brand-logo --></div>
 
       <h1 class="start-screen__title">
@@ -24,76 +24,12 @@
       </h1>
 
       <div class="start-screen__actions">
-        <button class="button button--primary button--large start-screen__start" type="button">Start</button>
+        <a class="button button--primary button--large start-screen__start" href="training.html">Start</a>
         <a class="start-screen__guide" href="guter-stand.html">Was ist ein guter Stand?</a>
       </div>
 
       <!-- include:site-footer -->
     </section>
-
-    <section class="camera-view" hidden>
-      <video class="camera-view__video" autoplay playsinline muted></video>
-      <canvas class="camera-view__overlay"></canvas>
-      <p class="camera-view__status" role="status" hidden></p>
-      <button class="button camera-view__close" type="button">Beenden</button>
-      <button class="button camera-view__clips" type="button" hidden>Clips</button>
-
-      <dl class="stats">
-        <div class="stats__item">
-          <dt class="stats__label">Best</dt>
-          <dd class="stats__value stats__best">–</dd>
-        </div>
-        <div class="stats__item">
-          <dt class="stats__label">Pop-ups</dt>
-          <dd class="stats__value stats__reps">0</dd>
-        </div>
-      </dl>
-
-      <section class="setup-hints" hidden>
-        <h2 class="setup-hints__title">So klappt's</h2>
-        <ul class="setup-hints__list">
-          <li>Kamera <strong>seitlich</strong> zu dir, möglichst im <strong>Querformat</strong>.</li>
-          <li>Dein <strong>ganzer Körper</strong> ist im Bild – im Liegen und im Stehen.</li>
-          <li><strong>Gutes Licht</strong>, Kleidung mit <strong>Kontrast</strong> zum Hintergrund.</li>
-          <li>Leg dich in die <strong>Paddelposition</strong>, Kopf hoch, Blick nach vorn.</li>
-          <li>Die Messung läuft <strong>von allein</strong>: Hinlegen macht bereit, dein Aufstehen startet die Zeit, der sichere Stand stoppt sie.</li>
-        </ul>
-        <p class="setup-hints__privacy">Alles bleibt auf deinem Gerät – kein Upload, kein Tracking.</p>
-      </section>
-
-      <section class="result-card" hidden aria-live="polite">
-        <div class="result-card__head">
-          <span class="result-card__time"></span>
-          <span class="result-card__stance"></span>
-          <span class="result-card__score">
-            <span class="result-card__score-value"></span>
-            <span class="result-card__score-label">Punkte</span>
-          </span>
-        </div>
-        <ul class="result-card__tips"></ul>
-        <details class="result-card__details">
-          <summary>Alle Kriterien</summary>
-          <ul class="result-card__criteria"></ul>
-        </details>
-        <p class="result-card__basis"></p>
-        <template class="result-card__row-template">
-          <li class="result-card__criterion">
-            <span class="result-card__criterion-label"></span>
-            <span class="result-card__criterion-value"></span>
-          </li>
-        </template>
-      </section>
-
-      <div class="timer" data-state="waiting" aria-live="polite">
-        <span class="timer__value">0,00 s</span>
-        <p class="timer__hint"></p>
-      </div>
-
-      <div class="celebration" hidden aria-hidden="true">
-        <p class="celebration__text">Yeah!</p>
-      </div>
-    </section>
-
   </main>
 
 </body>

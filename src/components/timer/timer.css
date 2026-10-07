@@ -19,6 +19,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+.timer__reps {
+  font-size: 1rem;
+  line-height: 1.1;
+}
+
 .timer__hint {
   margin: 0;
   font-size: 1.15rem;

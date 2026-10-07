@@ -1,4 +1,5 @@
 import '../styles/layout.css';
-import { initAppController } from './app-controller.js';
+import { initPageChrome } from './page-chrome.js';
 
-initAppController();
+// Landing page – only shared chrome (theme switch). START is a link to training.html.
+initPageChrome();

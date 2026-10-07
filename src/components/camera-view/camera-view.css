@@ -1,7 +1,7 @@
 .camera-view {
   position: relative;
   flex: 1;
-  min-height: 100dvh;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -69,16 +69,3 @@
   .camera-view__status::before { animation: none; }
 }
 
-.camera-view__close {
-  position: absolute;
-  top: calc(env(safe-area-inset-top) + 0.75rem);
-  left: 1rem;
-  z-index: 11;
-}
-
-.camera-view__clips {
-  position: absolute;
-  top: calc(env(safe-area-inset-top) + 0.75rem);
-  left: 7.5rem;
-  z-index: 11;
-}

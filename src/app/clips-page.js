@@ -8,6 +8,8 @@ import { initPageChrome } from './page-chrome.js';
 
 /** @typedef {import('../clips/clip-store.js').Clip} Clip */
 
+const seconds = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 /** A stance is good enough to be a 🎯 reference when the core criteria were measurable. */
 const canReference = (/** @type {Clip} */ clip) =>
   ['frontKnee', 'backKnee', 'stanceWidth'].every((k) => typeof clip.measurement?.values[k] === 'number');
@@ -69,6 +71,10 @@ export function initClipsPage() {
       status = 'Die Clips konnten nicht geladen werden.';
     }
     profile = buildProfile(clips.filter((c) => c.reference && c.measurement).map((c) => /** @type {NonNullable<typeof c.measurement>} */ (c.measurement).values));
+    const best = $('.clip-gallery__best');
+    const fastest = clips.reduce((min, c) => Math.min(min, c.popupSeconds), Infinity);
+    best.hidden = !Number.isFinite(fastest);
+    best.textContent = Number.isFinite(fastest) ? `Beste Zeit: ${seconds.format(fastest)} s` : '';
     for (const [key, objectUrl] of urls) {
       if (!clips.some((c) => key.startsWith(`${c.id}:`))) {
         URL.revokeObjectURL(objectUrl);

@@ -6,13 +6,11 @@ import { initCameraView } from '../components/camera-view/camera-view.js';
 import { initCelebration } from '../components/celebration/celebration.js';
 import { initResultCard } from '../components/result-card/result-card.js';
 import { initSetupHints } from '../components/setup-hints/setup-hints.js';
-import { initStartScreen } from '../components/start-screen/start-screen.js';
-import { initStats } from '../components/stats/stats.js';
 import { initTimer } from '../components/timer/timer.js';
 import { createEngineClient } from '../engine/engine-client.js';
 import { createRecorder } from '../recording/recorder.js';
 import { createSkeletonRenderer } from '../render/skeleton-renderer.js';
-import { closeCamera, openCamera } from './camera.js';
+import { openCamera } from './camera.js';
 import { createClipsController } from './clips-controller.js';
 import { createDevMetrics } from './dev-metrics.js';
 import { startFrameLoop } from './frame-loop.js';
@@ -20,8 +18,6 @@ import { initPageChrome } from './page-chrome.js';
 
 /** @typedef {import('../engine/engine.js').EngineResult} EngineResult */
 /** @typedef {import('../components/timer/timer.js').TimerState} TimerState */
-
-const BEST_KEY = 'ok-best-time';
 
 const HINTS = {
   nobody: 'Stell dich so hin, dass die Kamera dich ganz sieht.',
@@ -37,14 +33,12 @@ const HINTS = {
 /** @param {string} selector */
 const $ = (selector) => /** @type {HTMLElement} */ (document.querySelector(selector));
 
-/** Wires the components of the main page. The only place that knows all of them. */
-export function initAppController() {
+/** Wires the training page: camera, engine and the live components. Starts on load. */
+export function initTrainingController() {
   initPageChrome();
 
-  const startScreen = initStartScreen($('.start-screen'));
   const cameraView = initCameraView($('.camera-view'));
   const timer = initTimer($('.timer'));
-  const stats = initStats($('.stats'));
   const resultCard = initResultCard($('.result-card'));
   const setupHints = initSetupHints($('.setup-hints'));
   const celebration = initCelebration($('.celebration'));
@@ -54,7 +48,6 @@ export function initAppController() {
   let profile = DEFAULT_PROFILE;
   const clips = createClipsController();
   clips.loadProfile().then((p) => { profile = p; }, (error) => console.error('Loading references failed', error));
-  let clipsAvailable = false;
   /** @type {'good' | 'bad' | 'none'} */
   let framing = 'none';
   /** @type {{ value: 'good' | 'bad', since: number } | null} */
@@ -75,31 +68,18 @@ export function initAppController() {
   let stopLoop = null;
   let grabbing = false;
 
-  let best = loadBest();
   let reps = 0;
   let lastSeconds = 0;
   /** @type {keyof typeof HINTS | null} */
   let lastOutcome = null;
 
-  showStart();
-  stats.render({ best, reps });
+  // Leaving the training happens through the site header (logo → home, nav → Clips/Stance),
+  // which navigates away and tears the page down. Flush any clip still being recorded first.
+  window.addEventListener('pagehide', () => { clips.flush(); });
 
-  document.addEventListener('app:start', startTraining);
-  document.addEventListener('app:stop', stopTraining);
-  document.addEventListener('clips:open', async () => {
-    await clips.flush(); // don't lose a clip that is still being recorded
-    location.href = 'clips.html';
-  });
-  // "Training" in the site header links here – go straight to the camera
-  if (location.hash === '#training') startTraining();
+  start();
 
-  function showStart() {
-    startScreen.render({ visible: true });
-    cameraView.render({ visible: false });
-  }
-
-  async function startTraining() {
-    startScreen.render({ visible: false });
+  async function start() {
     cameraView.render({ visible: true, status: 'Kamera wird gestartet …' });
 
     try {
@@ -113,27 +93,13 @@ export function initAppController() {
     cameraView.render({ visible: true, status: 'Erkennung wird geladen …' });
     engineReady ??= engine.init();
     const [info, canRecord] = await Promise.all([engineReady, clips.start(cameraView.video)]);
-    clipsAvailable = canRecord;
     if (import.meta.env.DEV) metrics = createDevMetrics(`${info.mode}/${info.delegate}, clips: ${canRecord}`);
 
     framing = 'none';
     framingCandidate = null;
-    cameraView.render({ visible: true, clipsAvailable, framing });
-    timer.render({ seconds: lastSeconds, state: 'waiting', hint: HINTS.waiting });
+    cameraView.render({ visible: true, framing });
+    timer.render({ seconds: lastSeconds, state: 'waiting', hint: HINTS.waiting, reps });
     stopLoop = startFrameLoop(cameraView.video, grabFrame);
-  }
-
-  function stopTraining() {
-    if (location.hash) history.replaceState(null, '', location.pathname);
-    stopLoop?.();
-    stopLoop = null;
-    clips.stop();
-    closeCamera(cameraView.video);
-    skeleton.clear();
-    resultCard.render({ visible: false });
-    setupHints.render({ visible: false });
-    celebration.hide();
-    showStart();
   }
 
   /** @param {number} t */
@@ -190,12 +156,6 @@ export function initAppController() {
     lastSeconds = (/** @type {number} */ (run.endT) - run.startT) / 1000;
     lastOutcome = 'done';
     reps++;
-    const newBest = best === null || lastSeconds < best;
-    if (newBest) {
-      best = lastSeconds;
-      saveBest(best);
-    }
-    stats.render({ best, reps, newBest });
     clips.popupDone(/** @type {number} */ (run.endT), lastSeconds);
   }
 
@@ -217,43 +177,25 @@ export function initAppController() {
     if (framingCandidate?.value !== value) framingCandidate = { value, since: t };
     if (value !== framing && t - framingCandidate.since >= FRAMING.holdMs) {
       framing = value;
-      cameraView.render({ visible: true, clipsAvailable, framing });
+      cameraView.render({ visible: true, framing });
     }
   }
 
   /** @param {EngineResult} result */
   function renderTimer({ state, run, t, frame }) {
     if (state === 'RUNNING' && run) {
-      timer.render({ seconds: (t - run.startT) / 1000, state: 'running', hint: HINTS.running });
+      timer.render({ seconds: (t - run.startT) / 1000, state: 'running', hint: HINTS.running, reps });
       return;
     }
     if (state === 'READY') {
       const hint = lastOutcome === 'aborted' ? HINTS.aborted : HINTS.ready;
-      timer.render({ seconds: 0, state: 'ready', hint });
+      timer.render({ seconds: 0, state: 'ready', hint, reps });
       return;
     }
     /** @type {TimerState} */
     const shown = state === 'DONE' ? 'done' : state === 'TIMEOUT' ? 'timeout' : 'waiting';
     const hint = !frame ? HINTS.nobody : framing === 'bad' ? HINTS.partial : HINTS[lastOutcome ?? 'waiting'];
-    timer.render({ seconds: state === 'TIMEOUT' ? 20 : lastSeconds, state: shown, hint });
-  }
-}
-
-function loadBest() {
-  try {
-    const saved = Number(localStorage.getItem(BEST_KEY));
-    return saved > 0 ? saved : null;
-  } catch {
-    return null;
-  }
-}
-
-/** @param {number} seconds */
-function saveBest(seconds) {
-  try {
-    localStorage.setItem(BEST_KEY, String(seconds));
-  } catch {
-    // storage blocked – best time lasts for this visit only
+    timer.render({ seconds: state === 'TIMEOUT' ? 20 : lastSeconds, state: shown, hint, reps });
   }
 }
 

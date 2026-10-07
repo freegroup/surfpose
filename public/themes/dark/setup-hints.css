@@ -1,7 +1,10 @@
 .setup-hints {
-  background-color: var(--color-overlay-bg);
-  color: var(--color-text);
+  background-color: var(--color-glass-bg);
+  color: var(--color-on-glass);
+  border-style: solid;
+  border-color: var(--color-acryl-border);
   border-radius: var(--radius-card);
+  backdrop-filter: blur(18px) saturate(1.3);
 }
 
 .setup-hints__title {
@@ -11,11 +14,12 @@
   text-transform: uppercase;
 }
 
-.setup-hints__privacy {
-  color: var(--color-text-muted);
+.setup-hints__list strong {
+  color: var(--color-accent);
+  font-weight: 600;
 }
 
-.setup-hints__list strong {
-  color: var(--color-highlight);
-  font-weight: 600;
+.setup-hints__privacy {
+  color: var(--color-on-glass);
+  opacity: 0.65;
 }
