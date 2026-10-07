@@ -132,8 +132,8 @@ export const EVALUATION = {
 
 /** Video clips of the last stands (stored on the device only). */
 export const CLIPS = {
-  preMs: 10000, // video before the stand
-  postMs: 10000, // video after the stand
+  preMs: 5000, // video before the stand
+  postMs: 5000, // video after the stand
   maxClips: 20, // unmarked clips kept; 🤙/🎯 clips come on top and are never removed automatically
   maxLongSide: 1280, // px
   bitrate: 2_000_000,

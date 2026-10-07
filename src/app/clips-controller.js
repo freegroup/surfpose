@@ -113,7 +113,8 @@ export function createClipsController() {
       pending.measurement = measurement;
       pending.evaluation = evaluation;
       const side = evaluation.stance.side;
-      showBadge(`${seconds.format(pending.popupSeconds)} s${side ? ` · ${STANCE_TEXT[side]}` : ''}`);
+      const score = evaluation.score === null ? '' : ` · ${Math.round(evaluation.score)}/100`;
+      showBadge(`${seconds.format(pending.popupSeconds)} s${side ? ` · ${STANCE_TEXT[side]}` : ''}${score}`);
     },
 
     /** Ends a clip still being recorded and waits until it is saved (max. 5 s). */

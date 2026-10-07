@@ -2,8 +2,6 @@
 
 /** @typedef {import('./clip-store.js').Clip} Clip */
 
-const seconds = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
 /** @param {Clip} clip */
 function toFile(clip) {
   const date = new Date(clip.createdAt).toISOString().slice(0, 19).replace(/[T:]/g, '-');
@@ -19,7 +17,9 @@ export async function shareClip(clip) {
   const file = toFile(clip);
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], text: `Mein Pop-up: ${seconds.format(clip.popupSeconds)} s 🤙` });
+      // Only the file – adding `text` makes the share sheet's "Copy" put two items on the
+      // clipboard (file + text), which pastes doubled. Time/stance/score are burned into the video.
+      await navigator.share({ files: [file] });
       return 'shared';
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return 'cancelled';
