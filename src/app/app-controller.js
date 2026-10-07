@@ -170,7 +170,9 @@ export function initAppController() {
       if (event.type === 'stand') celebrateStand(event);
     }
     renderTimer(result);
-    setupHints.render({ visible: result.state === 'IDLE' && reps === 0 });
+    // The setup hints help with positioning – once the whole body is in view (green frame)
+    // they've done their job and would only cover the result card, so they go away.
+    setupHints.render({ visible: result.state === 'IDLE' && reps === 0 && framing !== 'good' });
   }
 
   /**
