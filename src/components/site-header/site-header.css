@@ -1,8 +1,9 @@
+/* Fluid gaps and sizes so logo, three links and the theme switch fit on a 360 px phone. */
 .site-header {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: calc(env(safe-area-inset-top) + 0.75rem) 1.25rem 0.75rem;
+  gap: clamp(0.6rem, 2.5vw, 1.25rem);
+  padding: calc(env(safe-area-inset-top) + 0.75rem) clamp(0.75rem, 4vw, 1.25rem) 0.75rem;
   border-bottom-width: 1px;
 }
 
@@ -16,14 +17,16 @@
 }
 
 .site-header__brand {
-  font-size: 1.1rem;
+  flex-shrink: 0;
+  font-size: clamp(0.85rem, 3.4vw, 1.1rem);
 }
 
 .site-header__nav {
   display: flex;
-  gap: 1.25rem;
+  gap: clamp(0.65rem, 3vw, 1.25rem);
+  min-width: 0;
   margin-left: auto;
-  font-size: 1.15rem;
+  font-size: clamp(0.95rem, 3.6vw, 1.15rem);
   line-height: 1;
 }
 
