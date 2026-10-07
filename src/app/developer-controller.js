@@ -24,6 +24,9 @@ import { initPageChrome } from './page-chrome.js';
 /** @typedef {import('../components/dev-panel/dev-panel.js').DevRow} DevRow */
 /** @typedef {DevRow['status']} Status */
 
+/** Laptop/desktop only – keep in sync with the media query in dev-panel.css. */
+const LAPTOP = '(min-width: 900px) and (pointer: fine)';
+
 const RANK = { na: 0, good: 1, warn: 2, bad: 3 };
 
 /** Degrees with one decimal, ratios with two – the precision the config uses. */
@@ -64,6 +67,7 @@ const $ = (selector) => /** @type {HTMLElement} */ (document.querySelector(selec
 
 export function initDeveloperController() {
   initPageChrome();
+  if (!matchMedia(LAPTOP).matches) return; // mobile: only the notice, no camera, no permission prompt
   const cameraView = initCameraView($('.camera-view'));
   const panel = initDevPanel($('.dev-panel'));
   const skeleton = createSkeletonRenderer(cameraView.canvas);

@@ -1,17 +1,66 @@
-/* Developer page: toolbar on top, camera and live table side by side on wide screens. */
+/* Developer page – laptop only. Smaller screens or touch-only devices get just a notice.
+   Keep the media query in sync with LAPTOP in src/app/developer-controller.js. */
 .dev-panel {
-  display: grid;
-  grid-template: 'tools' auto 'camera' 55dvh 'table' auto / 1fr;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
 }
 
-.dev-panel__toolbar {
-  grid-area: tools;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
+.dev-panel__toolbar,
+.dev-panel > .camera-view,
+.dev-panel__side {
+  display: none;
+}
+
+.dev-panel__mobile {
+  max-width: 28rem;
+  margin: 0;
+  font-size: 1.15rem;
+  text-align: center;
+}
+
+@media (min-width: 900px) and (pointer: fine) {
+  /* the window never scrolls – only the table does */
+  body:has(.dev-panel) {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .dev-panel {
+    display: grid;
+    grid-template: 'tools tools' auto 'camera table' minmax(0, 1fr) / 1fr minmax(24rem, 36rem);
+    align-items: stretch;
+    justify-content: stretch;
+    gap: 0.75rem;
+    min-height: 0;
+    padding: 0.75rem;
+    overflow: hidden;
+  }
+
+  .dev-panel__mobile {
+    display: none;
+  }
+
+  .dev-panel__toolbar {
+    grid-area: tools;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+  }
+
+  .dev-panel > .camera-view {
+    grid-area: camera;
+    display: block;
+  }
+
+  .dev-panel__side {
+    grid-area: table;
+    display: block;
+    min-height: 0;
+    overflow: auto;
+  }
 }
 
 .dev-panel__model {
@@ -19,19 +68,9 @@
   font-size: 1rem;
 }
 
-.dev-panel > .camera-view {
-  grid-area: camera;
-}
-
 /* the whole camera image, never cropped – the skeleton is drawn with the same mapping */
 .dev-panel .camera-view__video {
   object-fit: contain;
-}
-
-.dev-panel__side {
-  grid-area: table;
-  min-height: 0;
-  overflow: auto;
 }
 
 .dev-panel__status {
@@ -50,6 +89,13 @@
   padding: 0.4rem 0.5rem;
   text-align: left;
   vertical-align: baseline;
+}
+
+/* header row stays visible while the table scrolls */
+.dev-panel__table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .dev-panel__row {
@@ -97,10 +143,4 @@
 .dev-panel__hint {
   margin: 0.75rem 0 0;
   font-size: 0.9rem;
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .dev-panel {
-    grid-template: 'tools tools' auto 'camera table' 1fr / 1fr minmax(24rem, 36rem);
-  }
 }

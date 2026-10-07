@@ -4,6 +4,7 @@
 }
 
 .dev-panel__table th {
+  background-color: var(--color-bg);
   color: var(--color-text-muted);
   font-family: var(--font-display);
   font-weight: 800;
@@ -64,4 +65,8 @@
 
 .dev-panel__reset:hover {
   background-color: var(--color-surface);
+}
+
+.dev-panel__mobile {
+  color: var(--color-text);
 }
