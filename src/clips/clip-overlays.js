@@ -11,24 +11,36 @@ async function displayFont(size) {
 }
 
 /**
- * "OCEAN ~ KRAFT" wordmark (placeholder until the real logo file exists).
+ * The Ocean Kraft logo burned into the clips, rasterized from the same inline SVG the UI uses
+ * (read from the DOM, recolored to the clip-logo color). A soft shadow keeps it legible on video.
  * @param {number} videoHeight px
  */
 export async function renderLogo(videoHeight) {
-  const size = Math.round(videoHeight * 0.06);
-  const canvas = new OffscreenCanvas(Math.round(size * 4), Math.round(size * 2.4));
-  const ctx = /** @type {OffscreenCanvasRenderingContext2D} */ (canvas.getContext('2d'));
-  ctx.font = await displayFont(size);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = themeVar('--color-clip-logo');
-  ctx.shadowColor = themeVar('--color-clip-shadow');
-  ctx.shadowBlur = size * 0.3;
+  const source = /** @type {SVGElement | null} */ (document.querySelector('.brand-logo'));
+  if (!source) return null;
 
-  const cx = canvas.width / 2;
-  ctx.fillText('OCEAN', cx, size * 1.05);
-  ctx.fillRect(size * 0.3, size * 1.22, canvas.width - size * 0.6, size * 0.08);
-  ctx.fillText('KRAFT', cx, size * 2.25);
+  const height = Math.round(videoHeight * 0.1);
+  const svg = /** @type {SVGElement} */ (source.cloneNode(true));
+  const ratio = (() => {
+    const vb = (svg.getAttribute('viewBox') ?? '0 0 2 1').split(/\s+/).map(Number);
+    return vb[2] / vb[3] || 2;
+  })();
+  const width = Math.round(height * ratio);
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  svg.setAttribute('fill', themeVar('--color-clip-logo'));
+
+  const data = new XMLSerializer().serializeToString(svg);
+  const img = new Image();
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(data)}`;
+  await img.decode();
+
+  const pad = Math.round(height * 0.2);
+  const canvas = new OffscreenCanvas(width + pad * 2, height + pad * 2);
+  const ctx = /** @type {OffscreenCanvasRenderingContext2D} */ (canvas.getContext('2d'));
+  ctx.shadowColor = themeVar('--color-clip-shadow');
+  ctx.shadowBlur = height * 0.18;
+  ctx.drawImage(img, pad, pad, width, height);
   return canvas.transferToImageBitmap();
 }
 
