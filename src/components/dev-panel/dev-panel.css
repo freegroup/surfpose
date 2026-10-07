@@ -23,6 +23,11 @@
   grid-area: camera;
 }
 
+/* the whole camera image, never cropped – the skeleton is drawn with the same mapping */
+.dev-panel .camera-view__video {
+  object-fit: contain;
+}
+
 .dev-panel__side {
   grid-area: table;
   min-height: 0;

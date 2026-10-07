@@ -109,7 +109,7 @@ export function initDeveloperController() {
     const calib = frame && buffer.length >= 5 ? calibrateStanding(buffer) : null;
     evaluation = calib ? evaluateStance(measureStance(buffer, null, calib), developerProfile(working)) : null;
     frontFoot = calib && frame ? extractStanceFeatures(frame, calib).frontFoot : null;
-    lastDraw = skeleton.drawStatus(frame, { mirror: true }, jointColor);
+    lastDraw = skeleton.drawStatus(frame, { mirror: true, objectFit: 'contain' }, jointColor);
     if (t - lastPanelT > 100) {
       lastPanelT = t;
       renderPanel();

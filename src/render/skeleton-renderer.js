@@ -61,15 +61,15 @@ export function createSkeletonRenderer(canvas) {
      * Thick skeleton with a color per joint (developer page). Returns the view and joint
      * radius used, so taps can be matched to joints with the same mapping.
      * @param {PoseFrame | null} frame
-     * @param {{ mirror: boolean }} options
+     * @param {{ mirror: boolean, objectFit?: 'cover' | 'contain' }} options same as the video element
      * @param {(index: number | 'head') => string} jointColor
      */
-    drawStatus(frame, { mirror }, jointColor) {
+    drawStatus(frame, { mirror, objectFit = 'cover' }, jointColor) {
       const { w, h } = fit();
       ctx.clearRect(0, 0, w, h);
       if (!frame) return null;
       /** @type {import('./draw-skeleton.js').SkeletonView} */
-      const view = { frameWidth: frame.width, frameHeight: frame.height, width: w, height: h, mirror, objectFit: 'cover' };
+      const view = { frameWidth: frame.width, frameHeight: frame.height, width: w, height: h, mirror, objectFit };
       return { view, radius: drawStatusSkeleton(ctx, frame.image, view, colors, jointColor) };
     },
 
