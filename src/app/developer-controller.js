@@ -144,10 +144,12 @@ export function initDeveloperController() {
       const status = r?.status ?? 'na';
       if (c.kind === 'flag') {
         const current = typeof r?.value === 'boolean' ? (r.value ? 'ja' : 'nein') : '–';
-        return { key, label: c.label, current, reference: c.good ? 'ja' : 'nein', range: '', status, own };
+        const target = /** @type {import('../config.js').FlagCriterion} */ (STANCE_CRITERIA[key]).good ? 'ja' : 'nein';
+        return { key, label: c.label, target, current, reference: c.good ? 'ja' : 'nein', range: '', status, own };
       }
       return {
         key, label: c.label, status, own,
+        target: show(/** @type {import('../config.js').RangeCriterion} */ (STANCE_CRITERIA[key]).reference, c.unit),
         current: typeof r?.value === 'number' ? show(r.value, c.unit) : '–',
         reference: show(c.reference, c.unit),
         range: `± ${show(c.perfectRange, c.unit)} / ± ${show(c.inRange, c.unit)}`,
@@ -182,6 +184,12 @@ export function initDeveloperController() {
   });
 
   document.addEventListener('dev:take', (e) => take([/** @type {CustomEvent} */ (e).detail.key]));
+  document.addEventListener('dev:reset', (e) => {
+    const { key } = /** @type {CustomEvent} */ (e).detail;
+    working[key] = structuredClone(STANCE_CRITERIA[key]);
+    message = `${key} auf Startwert aus config.js zurückgesetzt – noch nicht gespeichert.`;
+    renderPanel();
+  });
   document.addEventListener('dev:copy', async () => {
     try {
       await navigator.clipboard.writeText(stanceCriteriaSource(working));

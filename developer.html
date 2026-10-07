@@ -30,20 +30,27 @@
       <p class="dev-panel__status" role="status" hidden></p>
       <table class="dev-panel__table">
         <thead>
-          <tr><th>Key</th><th>Ist</th><th>Soll</th><th>Spielraum</th></tr>
+          <tr><th>Key</th><th title="Startwert aus config.js">Soll</th><th title="Wie du gerade stehst">Ist</th><th title="Womit verglichen wird">Referenz</th><th>Spielraum</th><th><span class="visually-hidden">Zurücksetzen</span></th></tr>
         </thead>
         <tbody class="dev-panel__rows"></tbody>
       </table>
       <template class="dev-panel__row-template">
         <tr class="dev-panel__row">
           <td><span class="dev-panel__json"></span><span class="dev-panel__label"></span></td>
+          <td class="dev-panel__target"></td>
           <td class="dev-panel__current"></td>
           <td class="dev-panel__reference"></td>
           <td class="dev-panel__range"></td>
+          <td>
+            <button class="dev-panel__reset" type="button" aria-label="Auf Startwert zurücksetzen" title="Auf Startwert zurücksetzen" hidden>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+          </td>
         </tr>
       </template>
-      <p class="dev-panel__hint">Gelenk im Bild oder Zeile antippen: der Ist-Wert wird zur neuen Referenz.
-        Gemessen wird im Stehen – seitlich zur Kamera, Blick zur Nose.</p>
+      <p class="dev-panel__hint"><b>Soll</b> = Startwert aus config.js · <b>Ist</b> = wie du gerade stehst ·
+        <b>Referenz</b> = womit verglichen wird. Gelenk im Bild oder Zeile antippen: der Ist-Wert wird zur neuen
+        Referenz; der Kreispfeil setzt sie auf Soll zurück. Gemessen wird im Stehen – seitlich zur Kamera, Blick zur Nose.</p>
     </section>
   </main>
 </body>

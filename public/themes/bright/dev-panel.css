@@ -44,6 +44,7 @@
 }
 
 .dev-panel__label,
+.dev-panel__target,
 .dev-panel__range,
 .dev-panel__hint,
 .dev-panel__model {
@@ -52,4 +53,15 @@
 
 .dev-panel__status {
   font-weight: 600;
+}
+
+/* reset to the config value – amber like a slicer's "changed" marker */
+.dev-panel__reset {
+  background-color: var(--color-none);
+  color: var(--color-state-running);
+  border-radius: 50%;
+}
+
+.dev-panel__reset:hover {
+  background-color: var(--color-surface);
 }

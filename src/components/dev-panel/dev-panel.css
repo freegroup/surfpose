@@ -64,6 +64,7 @@
   font-size: 0.8rem;
 }
 
+.dev-panel__target,
 .dev-panel__current,
 .dev-panel__reference {
   font-size: 1.3rem;
@@ -74,6 +75,18 @@
 .dev-panel__range {
   font-size: 0.9rem;
   white-space: nowrap;
+}
+
+.dev-panel__reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-width: 0;
+  font-size: 1.35rem;
+  cursor: pointer;
 }
 
 .dev-panel__hint {

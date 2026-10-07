@@ -2,8 +2,9 @@
  * @typedef {object} DevRow
  * @property {string} key        JSON key in STANCE_CRITERIA
  * @property {string} label
- * @property {string} current    measured value, formatted
- * @property {string} reference  target value, formatted
+ * @property {string} target     starting value from config.js (Soll), formatted
+ * @property {string} current    measured value (Ist), formatted
+ * @property {string} reference  value it is compared against (Referenz), formatted
  * @property {string} range      "± perfect / ± ok"
  * @property {'good' | 'warn' | 'bad' | 'na'} status
  * @property {boolean} own       reference differs from config.js
@@ -11,7 +12,8 @@
 
 /**
  * Developer page: toolbar and the live criteria table. Emits `dev:copy`, `dev:save`,
- * `dev:clear` and `dev:take` (`{ key }`) when a row is tapped.
+ * `dev:clear`, `dev:take` (`{ key }`) when a row is tapped and `dev:reset` (`{ key }`)
+ * from a row's reset button.
  * @param {HTMLElement} root
  */
 export function initDevPanel(root) {
@@ -27,8 +29,10 @@ export function initDevPanel(root) {
   $('.dev-panel__save').addEventListener('click', () => emit('dev:save'));
   $('.dev-panel__clear').addEventListener('click', () => emit('dev:clear'));
   body.addEventListener('click', (event) => {
-    const row = /** @type {HTMLElement | null} */ (/** @type {HTMLElement} */ (event.target).closest('[data-key]'));
-    if (row) emit('dev:take', { key: row.dataset.key });
+    const target = /** @type {HTMLElement} */ (event.target);
+    const row = /** @type {HTMLElement | null} */ (target.closest('[data-key]'));
+    if (!row) return;
+    emit(target.closest('.dev-panel__reset') ? 'dev:reset' : 'dev:take', { key: row.dataset.key });
   });
 
   /** @param {DevRow} r */
@@ -40,9 +44,11 @@ export function initDevPanel(root) {
     tr.toggleAttribute('data-own', r.own);
     cell('.dev-panel__json').textContent = r.key;
     cell('.dev-panel__label').textContent = r.label;
+    cell('.dev-panel__target').textContent = r.target;
     cell('.dev-panel__current').textContent = r.current;
     cell('.dev-panel__reference').textContent = r.reference;
     cell('.dev-panel__range').textContent = r.range;
+    cell('.dev-panel__reset').hidden = !r.own; // like a slicer: only changed values can be reset
     return tr;
   }
 
