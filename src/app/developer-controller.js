@@ -144,12 +144,13 @@ export function initDeveloperController() {
       const status = r?.status ?? 'na';
       if (c.kind === 'flag') {
         const current = typeof r?.value === 'boolean' ? (r.value ? 'ja' : 'nein') : '–';
-        const target = /** @type {import('../config.js').FlagCriterion} */ (STANCE_CRITERIA[key]).good ? 'ja' : 'nein';
+        const target = !own ? '' : /** @type {import('../config.js').FlagCriterion} */ (STANCE_CRITERIA[key]).good ? 'ja' : 'nein';
         return { key, label: c.label, target, current, reference: c.good ? 'ja' : 'nein', range: '', status, own };
       }
       return {
         key, label: c.label, status, own,
-        target: show(/** @type {import('../config.js').RangeCriterion} */ (STANCE_CRITERIA[key]).reference, c.unit),
+        // Soll only where your reference differs from it – so every change stands out
+        target: own ? show(/** @type {import('../config.js').RangeCriterion} */ (STANCE_CRITERIA[key]).reference, c.unit) : '',
         current: typeof r?.value === 'number' ? show(r.value, c.unit) : '–',
         reference: show(c.reference, c.unit),
         range: `± ${show(c.perfectRange, c.unit)} / ± ${show(c.inRange, c.unit)}`,
