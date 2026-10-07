@@ -19,7 +19,7 @@ function describe(c) {
   if (typeof c.value === 'boolean') return c.status === 'good' ? 'ja' : 'nein';
   const value = formatValue(c.value, c.unit);
   if (!c.target) return value;
-  return `${value} (Ziel ${formatValue(c.target[0], c.unit)} – ${formatValue(c.target[1], c.unit)})`;
+  return `${value} (Ziel ${formatValue(c.target.reference, c.unit)} ± ${formatValue(c.target.perfectRange, c.unit)})`;
 }
 
 /**

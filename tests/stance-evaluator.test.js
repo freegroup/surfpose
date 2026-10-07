@@ -74,43 +74,43 @@ describe('reference profile from 🎯 clips', () => {
   const good = measure('stance').values;
 
   it('keeps the starting values with fewer than 3 references', () => {
-    expect(buildProfile([good, good])).toEqual({ targets: {}, basis: { kind: 'default', count: 2 } });
+    expect(buildProfile([good, good])).toEqual({ references: {}, basis: { kind: 'default', count: 2 } });
   });
 
-  it('centers the targets on the references', () => {
-    const profile = buildProfile([good, { ...good, frontKnee: 118 }, { ...good, frontKnee: 126 }]);
+  it('starting values score exactly like the old 110–150° range with 20° falloff', () => {
+    const knee = (/** @type {number} */ frontKnee) =>
+      byKey(evaluateStance({ ...measure('stance'), values: { ...good, frontKnee } }, DEFAULT_PROFILE), 'frontKnee');
+    expect(knee(110).score).toBe(100);
+    expect(knee(150).score).toBe(100);
+    expect(knee(100).score).toBeCloseTo(50);
+    expect(knee(90).status).toBe('bad');
+  });
+
+  it('moves the reference to the median and keeps the ranges', () => {
+    const profile = buildProfile([118, 121, 126].map((frontKnee) => ({ ...good, frontKnee })));
     expect(profile.basis).toEqual({ kind: 'references', count: 3 });
-    const [lo, hi] = profile.targets.frontKnee;
-    expect(lo).toBeLessThan(121);
-    expect(hi).toBeGreaterThan(121);
-    expect(hi - lo).toBeLessThan(40); // narrower than the starting 110–150
+    expect(profile.references.frontKnee).toBe(121);
+    const at = (/** @type {number} */ frontKnee) =>
+      byKey(evaluateStance({ ...measure('stance'), values: { ...good, frontKnee } }, profile), 'frontKnee');
+    expect(at(121).target).toEqual({ reference: 121, perfectRange: 20 });
+    expect(at(140).score).toBe(100); // still ± 20° perfect – references never tighten it
+    expect(at(150).status).toBe('warn');
   });
 
-  it('identical references give valid ranges around their value and score themselves fully', () => {
-    const profile = buildProfile([good, good, good]);
-    for (const [key, [lo, hi]] of Object.entries(profile.targets)) {
-      expect(lo, key).toBeLessThan(hi);
-      const value = /** @type {number} */ (good[key]);
-      if (typeof value === 'number') {
-        expect(value, key).toBeGreaterThanOrEqual(lo);
-        expect(value, key).toBeLessThanOrEqual(hi);
-      }
-    }
-    const self = evaluateStance(measure('stance'), profile);
+  it('references score themselves fully', () => {
+    const self = evaluateStance(measure('stance'), buildProfile([good, good, good]));
     for (const c of self.criteria) if (c.score !== null) expect(c.score, c.key).toBeGreaterThan(90);
   });
 
-  it('drops an outlier reference', () => {
+  it('a single outlier reference barely moves the reference', () => {
     const refs = [118, 120, 121, 122, 124, 158].map((frontKnee) => ({ ...good, frontKnee }));
-    const [, hi] = buildProfile(refs).targets.frontKnee;
-    expect(hi).toBeLessThan(140);
+    expect(buildProfile(refs).references.frontKnee).toBeLessThan(125);
   });
 
   it('never lets references turn straight knees into the standard (guard rails)', () => {
     const stiff = measure('upright').values;
     const profile = buildProfile([stiff, stiff, stiff]);
-    const [, hi] = profile.targets.frontKnee;
-    expect(hi).toBeLessThanOrEqual(160);
+    expect(profile.references.frontKnee).toBeLessThanOrEqual(140);
     const e = evaluateStance(measure('upright'), profile);
     expect(byKey(e, 'frontKnee').status).not.toBe('good');
   });

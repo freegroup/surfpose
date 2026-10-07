@@ -37,17 +37,18 @@ export const PHASES = {
 };
 
 /**
- * Stance criteria. `target` = good range (starting values), `limits` = guard rails that
- * reference clips can never leave, `falloff` = distance beyond the target where the score
- * reaches 0, `minHalfWidth` = narrowest target a reference profile may produce.
+ * Stance criteria, all measured around a reference value (starting value):
+ * within ± `perfectRange` = 100 points (green), within ± `inRange` the score drops to 0 (yellow),
+ * beyond that 0 (red). 🎯 reference clips only move `reference` – to the median of their
+ * values, kept inside `referenceLimits` – the two ranges stay fixed.
  * @typedef {object} RangeCriterion
  * @property {'range'} kind
  * @property {string} label
  * @property {string} unit
- * @property {[number, number]} target
- * @property {[number, number]} limits
- * @property {number} falloff
- * @property {number} minHalfWidth
+ * @property {number} reference
+ * @property {number} perfectRange
+ * @property {number} inRange
+ * @property {[number, number]} referenceLimits
  * @property {number} weight
  * @property {{ low?: string, high?: string }} tips
  */
@@ -65,32 +66,32 @@ export const PHASES = {
 export const STANCE_CRITERIA = {
   stanceWidth: {
     kind: 'range', label: 'Standbreite', unit: '× Schulterbreite',
-    target: [1.2, 1.8], limits: [1.0, 2.2], falloff: 0.4, minHalfWidth: 0.15, weight: 1.5,
+    reference: 1.5, perfectRange: 0.3, inRange: 0.7, referenceLimits: [1.3, 1.9], weight: 1.5,
     tips: { low: 'Stell die Füße weiter auseinander – etwa schulterbreit oder etwas mehr.', high: 'Deine Füße stehen zu weit auseinander – etwas enger stellen.' },
   },
   frontKnee: {
     kind: 'range', label: 'Vorderes Knie', unit: '°',
-    target: [110, 150], limits: [95, 160], falloff: 20, minHalfWidth: 8, weight: 2,
+    reference: 130, perfectRange: 20, inRange: 40, referenceLimits: [115, 140], weight: 2,
     tips: { low: 'Vorderes Knie ist sehr stark gebeugt – etwas höher kommen.', high: 'Vorderes Knie mehr beugen – tief und federnd stehen.' },
   },
   backKnee: {
     kind: 'range', label: 'Hinteres Knie', unit: '°',
-    target: [110, 150], limits: [95, 160], falloff: 20, minHalfWidth: 8, weight: 2,
+    reference: 130, perfectRange: 20, inRange: 40, referenceLimits: [115, 140], weight: 2,
     tips: { low: 'Hinteres Knie ist sehr stark gebeugt – etwas höher kommen.', high: 'Hinteres Knie mehr beugen – tief und federnd stehen.' },
   },
   hip: {
     kind: 'range', label: 'Hüfte', unit: '°',
-    target: [110, 175], limits: [95, 180], falloff: 25, minHalfWidth: 10, weight: 1,
+    reference: 142.5, perfectRange: 32.5, inRange: 57.5, referenceLimits: [127.5, 147.5], weight: 1,
     tips: { low: 'Nicht in der Hüfte abknicken – Oberkörper aufrichten und mehr über die Knie tief gehen.' },
   },
   torsoLean: {
     kind: 'range', label: 'Oberkörper', unit: '° nach vorn',
-    target: [10, 40], limits: [0, 50], falloff: 15, minHalfWidth: 6, weight: 1,
+    reference: 25, perfectRange: 15, inRange: 30, referenceLimits: [15, 35], weight: 1,
     tips: { low: 'Oberkörper leicht nach vorn Richtung Nose neigen.', high: 'Oberkörper zu weit vorgebeugt – etwas aufrichten.' },
   },
   gazePitch: {
     kind: 'range', label: 'Blick', unit: '° nach unten',
-    target: [-20, 20], limits: [-30, 30], falloff: 20, minHalfWidth: 8, weight: 1,
+    reference: 0, perfectRange: 20, inRange: 40, referenceLimits: [-10, 10], weight: 1,
     tips: { low: 'Kopf nicht in den Nacken legen.', high: 'Blick nach vorn statt aufs Board.' },
   },
   lookingForward: {
@@ -99,22 +100,22 @@ export const STANCE_CRITERIA = {
   },
   neckAngle: {
     kind: 'range', label: 'Kopf zum Körper', unit: '°',
-    target: [0, 35], limits: [0, 45], falloff: 20, minHalfWidth: 8, weight: 0.5,
+    reference: 17.5, perfectRange: 17.5, inRange: 37.5, referenceLimits: [17.5, 27.5], weight: 0.5,
     tips: { high: 'Kopf über dem Körper halten, nicht nach vorn hängen lassen.' },
   },
   headPos: {
     kind: 'range', label: 'Kopfposition', unit: '',
-    target: [0.45, 0.95], limits: [0.35, 1.05], falloff: 0.2, minHalfWidth: 0.08, weight: 0.5,
+    reference: 0.7, perfectRange: 0.25, inRange: 0.45, referenceLimits: [0.6, 0.8], weight: 0.5,
     tips: { low: 'Kopf zu weit hinten – mehr über die Mitte des Boards.', high: 'Kopf zu weit vorn – zurück über die Mitte.' },
   },
   hipPos: {
     kind: 'range', label: 'Schwerpunkt', unit: '',
-    target: [0.4, 0.6], limits: [0.3, 0.7], falloff: 0.15, minHalfWidth: 0.06, weight: 1,
+    reference: 0.5, perfectRange: 0.1, inRange: 0.25, referenceLimits: [0.4, 0.6], weight: 1,
     tips: { low: 'Gewicht zu weit hinten – mehr in die Mitte zwischen die Füße.', high: 'Gewicht zu weit vorn – mehr in die Mitte zwischen die Füße.' },
   },
   popupGaze: {
     kind: 'range', label: 'Blick beim Aufspringen', unit: '° nach unten',
-    target: [-30, 25], limits: [-40, 35], falloff: 20, minHalfWidth: 8, weight: 1,
+    reference: -2.5, perfectRange: 27.5, inRange: 47.5, referenceLimits: [-12.5, 7.5], weight: 1,
     tips: { high: 'Beim Aufspringen nach vorn schauen, nicht aufs Board.' },
   },
   kneeDown: {

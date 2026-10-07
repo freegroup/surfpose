@@ -23,7 +23,7 @@ import { median } from './geometry.js';
  * @property {string} label
  * @property {number | boolean | null} value
  * @property {string} unit
- * @property {[number, number] | null} target
+ * @property {{ reference: number, perfectRange: number } | null} target  null for yes/no criteria
  * @property {number | null} score   0..100, null = not measurable
  * @property {'good' | 'warn' | 'bad' | 'na'} status
  * @property {string | null} tip
@@ -120,14 +120,15 @@ export function evaluateStance(measurement, profile) {
       return { ...base, target: null, score: ok ? 100 : 0, status: ok ? 'good' : 'bad', tip: ok ? null : c.tip };
     }
 
-    const [lo, hi] = profile.targets[key] ?? c.target;
+    // within ± perfectRange: 100 · up to ± inRange: falls to 0 · beyond: 0
+    const reference = profile.references[key] ?? c.reference;
     const v = /** @type {number} */ (value);
-    const off = v < lo ? lo - v : v > hi ? v - hi : 0;
-    const score = Math.max(0, 100 * (1 - off / c.falloff));
-    const tip = off === 0 ? null : (v < lo ? c.tips.low : c.tips.high) ?? null;
+    const off = Math.max(0, Math.abs(v - reference) - c.perfectRange);
+    const score = Math.max(0, 100 * (1 - off / (c.inRange - c.perfectRange)));
+    const tip = off === 0 ? null : (v < reference ? c.tips.low : c.tips.high) ?? null;
     /** @type {CriterionResult['status']} */
-    const status = off === 0 ? 'good' : score >= 50 ? 'warn' : 'bad';
-    return { ...base, target: [lo, hi], score, status, tip };
+    const status = off === 0 ? 'good' : score > 0 ? 'warn' : 'bad';
+    return { ...base, target: { reference, perfectRange: c.perfectRange }, score, status, tip };
   });
 
   const weight = (/** @type {CriterionResult} */ r) => STANCE_CRITERIA[r.key].weight;
