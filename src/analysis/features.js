@@ -40,7 +40,7 @@ const KNEE_BENT = 130; // degrees – a knee on the board is bent, a plank is st
 const FOOT_ON_GROUND = 0.35;
 const FEET_UNDER_BODY = 0.9; // ankles must be this far below the hips
 const HIP_BETWEEN_MARGIN = 0.15; // hips may be this far outside the feet (along the board)
-const LEGS_EXTENDED = 1.0; // lying: feet at least this far behind the hips
+const LEGS_EXTENDED = 0.5; // lying: feet at least this far behind the hips (tolerant of foreshortening)
 
 /** @param {number} a @param {number} b @param {number} x @param {number} margin */
 const hipBetween = (a, b, x, margin) => Math.min(a, b) - margin < x && x < Math.max(a, b) + margin;
@@ -112,7 +112,8 @@ export function extractFeatures(frame, calib) {
   const wrists = [px(frame, LM.LEFT_WRIST), px(frame, LM.RIGHT_WRIST)].filter((p) => p.seen);
 
   const scale = calib?.torsoLen ?? torsoLen;
-  const legsSeen = ankles.length === 2 && knees.length === 2;
+  // Lying on the side, one leg usually hides the other – a single visible ankle is enough.
+  const legsSeen = ankles.length >= 1;
   /** @param {Vec2} p height above ground in torso lengths */
   const height = (p) => (calib ? (calib.groundY - p.y) / scale : null);
   const nearGround = (/** @type {Vec2[]} */ ps, /** @type {number} */ limit) =>

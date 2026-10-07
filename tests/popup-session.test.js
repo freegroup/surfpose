@@ -83,6 +83,12 @@ describe('PopUpSession', () => {
     expect(play(frames).types).toEqual([]);
   });
 
+  it('still gets ready when one leg hides the other (side view)', () => {
+    const farLegHidden = { RIGHT_KNEE: 0.1, RIGHT_ANKLE: 0.1 };
+    const frames = sequence([{ hold: 'lying', ms: 1000 }]).map((frame) => withVisibility(frame, farLegHidden));
+    expect(play(frames).types).toEqual(['ready']);
+  });
+
   it('ignores a single frame that looks like a push-up', () => {
     const frames = sequence([{ hold: 'lying', ms: 2000 }]);
     frames[40] = synthFrame({ template: TEMPLATES.pushup, t: frames[40].t });

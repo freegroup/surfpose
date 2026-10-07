@@ -21,8 +21,9 @@ export const shoulderRise = (f, calib) =>
 export function classifyPhase(f, calib) {
   if (!f.core) return 'UNKNOWN';
   const rise = shoulderRise(f, calib);
-  // Lying needs the whole body: flat torso AND visible legs stretched out behind the hips.
-  // A bent-over person (feet under the hips) or an upper body alone never counts.
+  // Lying needs a flat torso and legs that confirm it. One visible leg is enough (on the side
+  // one leg hides the other); with no leg visible at all, legsFlat/legsExtended are null and
+  // this stays false – an upper body alone never counts as lying.
   const bodyFlat = f.torsoIncl > PHASES.lyingMinIncl && f.legsFlat === true && f.legsExtended === true;
   if (bodyFlat && (rise === null || rise < PHASES.lyingMaxRise)) return 'LYING';
   if (f.feetUnderBody && f.hipsAboveKnees !== false && !f.handsDown && !f.kneeDown && f.torsoIncl < PHASES.standMaxIncl) {
