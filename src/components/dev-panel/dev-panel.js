@@ -2,12 +2,12 @@
  * @typedef {object} DevRow
  * @property {string} key        JSON key in STANCE_CRITERIA
  * @property {string} label
- * @property {string} target     starting value from config.js (Soll), formatted
+ * @property {string} personal   your own value (Soll), formatted – '–' when you haven't set one
  * @property {string} current    measured value (Ist), formatted
- * @property {string} reference  value it is compared against (Referenz), formatted
+ * @property {string} reference  fixed value from config.js (Referenz), formatted
  * @property {string} range      "± perfect / ± ok"
  * @property {'good' | 'warn' | 'bad' | 'na'} status
- * @property {boolean} own       reference differs from config.js
+ * @property {boolean} own       a personal value (Soll) is set
  */
 
 /**
@@ -44,11 +44,11 @@ export function initDevPanel(root) {
     tr.toggleAttribute('data-own', r.own);
     cell('.dev-panel__json').textContent = r.key;
     cell('.dev-panel__label').textContent = r.label;
-    cell('.dev-panel__target').textContent = r.target;
+    cell('.dev-panel__personal').textContent = r.personal;
     cell('.dev-panel__current').textContent = r.current;
     cell('.dev-panel__reference').textContent = r.reference;
     cell('.dev-panel__range').textContent = r.range;
-    cell('.dev-panel__reset').hidden = !r.own; // like a slicer: only changed values can be reset
+    cell('.dev-panel__reset').hidden = !r.own; // like a slicer: only where a personal value is set
     return tr;
   }
 

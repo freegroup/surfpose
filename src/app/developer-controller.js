@@ -134,7 +134,7 @@ export function initDeveloperController() {
       taken.push(`${key} → ${show(reference, c.unit)}`);
     }
     message = taken.length
-      ? `Übernommen: ${taken.join(', ')} – noch nicht gespeichert.`
+      ? `Als Soll übernommen: ${taken.join(', ')} – noch nicht gespeichert.`
       : 'Hier gibt es gerade keinen messbaren Wert.';
     renderPanel();
   }
@@ -148,15 +148,16 @@ export function initDeveloperController() {
       const status = r?.status ?? 'na';
       if (c.kind === 'flag') {
         const current = typeof r?.value === 'boolean' ? (r.value ? 'ja' : 'nein') : '–';
-        const target = !own ? '–' : /** @type {import('../config.js').FlagCriterion} */ (STANCE_CRITERIA[key]).good ? 'ja' : 'nein';
-        return { key, label: c.label, target, current, reference: c.good ? 'ja' : 'nein', range: '', status, own };
+        const personal = own ? (c.good ? 'ja' : 'nein') : '–';
+        const reference = /** @type {import('../config.js').FlagCriterion} */ (STANCE_CRITERIA[key]).good ? 'ja' : 'nein';
+        return { key, label: c.label, personal, current, reference, range: '', status, own };
       }
       return {
         key, label: c.label, status, own,
-        // Soll only where your reference differs from it – so every change stands out
-        target: own ? show(/** @type {import('../config.js').RangeCriterion} */ (STANCE_CRITERIA[key]).reference, c.unit) : '–',
+        // Soll = your personal value (compared against), Referenz = the fixed config.js value
+        personal: own ? show(c.reference, c.unit) : '–',
         current: typeof r?.value === 'number' ? show(r.value, c.unit) : '–',
-        reference: show(c.reference, c.unit),
+        reference: show(/** @type {import('../config.js').RangeCriterion} */ (STANCE_CRITERIA[key]).reference, c.unit),
         range: `± ${show(c.perfectRange, c.unit)} / ± ${show(c.inRange, c.unit)}`,
       };
     });
@@ -192,7 +193,7 @@ export function initDeveloperController() {
   document.addEventListener('dev:reset', (e) => {
     const { key } = /** @type {CustomEvent} */ (e).detail;
     working[key] = structuredClone(STANCE_CRITERIA[key]);
-    message = `${key} auf Startwert aus config.js zurückgesetzt – noch nicht gespeichert.`;
+    message = `Soll für ${key} entfernt – es gilt wieder die Referenz aus config.js (noch nicht gespeichert).`;
     renderPanel();
   });
   document.addEventListener('dev:copy', async () => {

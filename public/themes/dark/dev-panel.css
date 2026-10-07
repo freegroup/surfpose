@@ -40,12 +40,9 @@
 .dev-panel__row[data-status='warn'] .dev-panel__current { color: var(--color-state-running); }
 .dev-panel__row[data-status='bad'] .dev-panel__current { color: var(--color-danger); }
 
-.dev-panel__row[data-own] .dev-panel__reference {
-  text-decoration: underline;
-}
 
 .dev-panel__label,
-.dev-panel__target,
+.dev-panel__reference,
 .dev-panel__range,
 .dev-panel__hint,
 .dev-panel__model {
