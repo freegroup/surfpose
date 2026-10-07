@@ -2,6 +2,8 @@ const seconds = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maxim
 const date = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 const STANCE_TEXT = { regular: 'Regular', goofy: 'Goofy' };
 
+import { ICON_COOL, ICON_REFERENCE } from '../../icons.js';
+
 /**
  * @typedef {object} ClipSummary
  * @property {string} id
@@ -47,7 +49,7 @@ export function initClipGallery(root) {
     part('.clip-gallery__meta').textContent = [clip.stance && STANCE_TEXT[clip.stance], date.format(clip.createdAt)]
       .filter(Boolean)
       .join(' · ');
-    part('.clip-gallery__marks').textContent = `${clip.cool ? '🤙' : ''}${clip.reference ? '🎯' : ''}`;
+    part('.clip-gallery__marks').innerHTML = `${clip.cool ? ICON_COOL : ''}${clip.reference ? ICON_REFERENCE : ''}`;
     return item;
   }
 
@@ -56,11 +58,10 @@ export function initClipGallery(root) {
     render({ clips, status: text = '', showInstallHint = false }) {
       const cool = clips.filter((c) => c.cool).length;
       const references = clips.filter((c) => c.reference).length;
-      count.textContent = clips.length
-        ? [`${clips.length} ${clips.length === 1 ? 'Clip' : 'Clips'}`, cool && `${cool} 🤙`, references && `${references} 🎯`]
-          .filter(Boolean)
-          .join(' · ')
-        : '';
+      const parts = [`${clips.length} ${clips.length === 1 ? 'Clip' : 'Clips'}`];
+      if (cool) parts.push(`${cool} ${ICON_COOL}`);
+      if (references) parts.push(`${references} ${ICON_REFERENCE}`);
+      count.innerHTML = clips.length ? parts.join(' · ') : '';
       status.textContent = text;
       status.hidden = !text;
       empty.hidden = clips.length > 0;
