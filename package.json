@@ -11,6 +11,7 @@
     "typecheck": "tsc -p jsconfig.json",
     "lint:css": "stylelint \"src/**/*.css\" \"public/themes/**/*.css\"",
     "dev:phone": "HTTPS=1 vite --host",
+    "og": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --hide-scrollbars --window-size=1200,630 --screenshot=public/img/og-image.png \"file://$PWD/scripts/og-card.html\"",
     "postinstall": "node scripts/fetch-assets.js",
     "replay": "node scripts/replay.js"
   },

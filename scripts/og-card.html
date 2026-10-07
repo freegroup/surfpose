@@ -1,0 +1,90 @@
+<!doctype html>
+<!-- Source for public/img/og-image.png. Rendered once via headless Chrome (see package.json "og"). -->
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @font-face {
+      font-family: 'Barlow Condensed';
+      src: url('../public/fonts/barlow-condensed-latin-800-italic.woff2') format('woff2');
+      font-weight: 800;
+      font-style: italic;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1200px; height: 630px; overflow: hidden; }
+    .card {
+      position: relative;
+      width: 1200px;
+      height: 630px;
+      background:
+        linear-gradient(90deg, #0b0c18e6 0%, #0b0c1899 45%, #0b0c1833 100%),
+        url('../public/img/hero-surf.webp') center/cover no-repeat;
+      font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+      font-style: italic;
+      font-weight: 800;
+    }
+    .wordmark {
+      position: absolute;
+      top: 54px;
+      left: 64px;
+      font-size: 40px;
+      line-height: 0.92;
+      letter-spacing: 0.02em;
+      color: #ecece6;
+      text-transform: uppercase;
+    }
+    .title {
+      position: absolute;
+      top: 142px;
+      left: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      text-transform: uppercase;
+      line-height: 0.9;
+    }
+    .line { display: inline-block; font-size: 108px; padding: 0 0.1em; }
+    .line--popup { background: #c6ff1a; color: #1a1c2e; }
+    .line--speed { color: #ffffff; text-shadow: 0 2px 16px #00000080; }
+    .line--analysis { background: #2a2c45; color: #c6ff1a; padding: 0.04em 0.14em 0.08em; }
+    .tagline {
+      position: absolute;
+      left: 66px;
+      bottom: 48px;
+      font-size: 32px;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 2px 14px #000000a6;
+    }
+    .lock {
+      position: absolute;
+      right: 60px;
+      bottom: 60px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 26px;
+      font-style: normal;
+      font-weight: 800;
+      color: #c6ff1a;
+    }
+    .lock svg { width: 30px; height: 30px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="wordmark">Ocean<br>Kraft</div>
+    <div class="title">
+      <span class="line line--popup">Pop-Up</span>
+      <span class="line line--speed">Speed</span>
+      <span class="line line--analysis">Analysis</span>
+    </div>
+    <div class="tagline">Miss deinen Pop-up. Werde schneller.</div>
+    <div class="lock">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+      100 % on-device
+    </div>
+  </div>
+</body>
+</html>
