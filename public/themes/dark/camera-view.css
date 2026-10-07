@@ -7,3 +7,16 @@
   color: var(--color-text);
   border-radius: var(--radius-card);
 }
+
+.camera-view::after {
+  border-style: solid;
+  border-color: var(--color-none);
+}
+
+.camera-view[data-framing='good']::after {
+  border-color: var(--color-accent);
+}
+
+.camera-view[data-framing='bad']::after {
+  border-color: var(--color-danger);
+}

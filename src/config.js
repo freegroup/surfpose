@@ -136,3 +136,19 @@ export const CLIPS = {
   fps: 30,
   keyFrameIntervalMs: 1000,
 };
+
+/** Green/red frame in the training view: is the person well in the picture? */
+export const FRAMING = {
+  minVisibility: 0.3, // more tolerant than the analysis (MIN_VISIBILITY)
+  maxMissing: 2, // of the 8 body points (shoulders, hips, knees, ankles) – e.g. the hidden far leg in side view
+  edgeMargin: 0, // normalized distance visible points must keep from the image border
+  holdMs: 300, // the color changes only after the new state held this long (no flicker)
+};
+
+/** Stand mode: train only the stance, without lying down first. */
+export const STAND_MODE = {
+  holdMs: 600, // stance held this long → evaluated
+  rearmMs: 500, // out of the stance this long → ready for the next one
+  bufferMs: 1000, // recent frames used to measure floor, body size and nose direction
+  yeahScore: 80, // from this score on: YEAH!
+};

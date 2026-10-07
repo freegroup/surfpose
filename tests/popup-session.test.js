@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { createPopupSession } from '../src/analysis/popup-session.js';
+import { LM } from '../src/pose/landmarks.js';
 import { sequence, synthFrame, TEMPLATES } from './helpers/synth.js';
 
 /** @typedef {import('../src/analysis/popup-session.js').SessionEvent} SessionEvent */
+
+/**
+ * @param {import('../src/pose/types.js').PoseFrame} frame
+ * @param {Partial<Record<keyof typeof import('../src/pose/landmarks.js').LM, number>>} visibility
+ */
+function withVisibility(frame, visibility) {
+  for (const [name, v] of Object.entries(visibility)) frame.image[LM[/** @type {keyof typeof LM} */ (name)]].visibility = v;
+  return frame;
+}
 
 /** @param {import('../src/pose/types.js').PoseFrame[]} frames */
 function play(frames, session = createPopupSession()) {
@@ -56,6 +66,21 @@ describe('PopUpSession', () => {
       return frame;
     });
     expect(play(frames).types).toEqual(['ready']);
+  });
+
+  it('does not get ready when someone bends over in front of the camera and stands up again', () => {
+    const { types } = play(sequence([
+      { hold: 'upright', ms: 1000 }, { to: 'bentOver', ms: 500 }, { hold: 'bentOver', ms: 3000 },
+      { to: 'upright', ms: 500 }, { hold: 'upright', ms: 2000 },
+    ]));
+    expect(types).toEqual([]);
+  });
+
+  it('does not get ready while the legs are not visible', () => {
+    const hidden = { LEFT_KNEE: 0.1, RIGHT_KNEE: 0.1, LEFT_ANKLE: 0.1, RIGHT_ANKLE: 0.1 };
+    const frames = sequence([{ hold: 'lying', ms: 2000 }, { to: 'pushup', ms: 300 }, { to: 'stance', ms: 400 }, { hold: 'stance', ms: 1000 }])
+      .map((frame, i) => (i < 60 ? withVisibility(frame, hidden) : frame));
+    expect(play(frames).types).toEqual([]);
   });
 
   it('ignores a single frame that looks like a push-up', () => {

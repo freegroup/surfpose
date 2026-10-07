@@ -1,4 +1,4 @@
-import { MIN_VISIBILITY } from '../config.js';
+import { FRAMING, MIN_VISIBILITY } from '../config.js';
 import { headCenter, LM } from '../pose/landmarks.js';
 import { angle3, angleBetween, dist, dist3, inclination, mid, mid3 } from './geometry.js';
 
@@ -23,7 +23,8 @@ import { angle3, angleBetween, dist, dist3, inclination, mid, mid3 } from './geo
  * @property {boolean} core          shoulders and hips are visible
  * @property {number} torsoLen       px
  * @property {number} torsoIncl      degrees from vertical (0 upright, 90 lying)
- * @property {boolean | null} legsFlat  ankles at hip level, as when lying
+ * @property {boolean | null} legsFlat  knees and ankles at hip level, as when lying (null: legs not visible)
+ * @property {boolean | null} legsExtended  feet stretched out behind the hips, away from the shoulders
  * @property {number | null} shoulderHeight
  * @property {number | null} hipHeight
  * @property {boolean | null} feetUnderBody  both feet on the ground below the hips, hips between the feet
@@ -39,6 +40,7 @@ const KNEE_BENT = 130; // degrees – a knee on the board is bent, a plank is st
 const FOOT_ON_GROUND = 0.35;
 const FEET_UNDER_BODY = 0.9; // ankles must be this far below the hips
 const HIP_BETWEEN_MARGIN = 0.15; // hips may be this far outside the feet (along the board)
+const LEGS_EXTENDED = 1.0; // lying: feet at least this far behind the hips
 
 /** @param {number} a @param {number} b @param {number} x @param {number} margin */
 const hipBetween = (a, b, x, margin) => Math.min(a, b) - margin < x && x < Math.max(a, b) + margin;
@@ -110,6 +112,7 @@ export function extractFeatures(frame, calib) {
   const wrists = [px(frame, LM.LEFT_WRIST), px(frame, LM.RIGHT_WRIST)].filter((p) => p.seen);
 
   const scale = calib?.torsoLen ?? torsoLen;
+  const legsSeen = ankles.length === 2 && knees.length === 2;
   /** @param {Vec2} p height above ground in torso lengths */
   const height = (p) => (calib ? (calib.groundY - p.y) / scale : null);
   const nearGround = (/** @type {Vec2[]} */ ps, /** @type {number} */ limit) =>
@@ -120,7 +123,10 @@ export function extractFeatures(frame, calib) {
     core: ls.seen && rs.seen && lh.seen && rh.seen,
     torsoLen,
     torsoIncl: inclination(hip, shoulder),
-    legsFlat: ankles.length ? ankles.every((a) => Math.abs(a.y - hip.y) < 0.6 * scale) : null,
+    legsFlat: legsSeen ? [...ankles, ...knees].every((p) => Math.abs(p.y - hip.y) < 0.6 * scale) : null,
+    legsExtended: legsSeen
+      ? ankles.every((a) => (a.x - hip.x) * Math.sign(hip.x - shoulder.x) > LEGS_EXTENDED * scale)
+      : null,
     shoulderHeight: height(shoulder),
     hipHeight: height(hip),
     feetUnderBody: calib && ankles.length === 2
@@ -154,6 +160,24 @@ export function extractFeatures(frame, calib) {
  */
 
 /**
+ * Which body side is towards the nose – that foot is in front (left = regular).
+ * A vote of hips (counts double), shoulders and ankles: from the side the feet look alike and
+ * cover each other, so the model swaps their labels much more often than those of the torso
+ * (seen on the real surfer photo). The torso wins when the ankles disagree.
+ * @param {PoseFrame} frame
+ * @param {(p: Vec2) => number} along position along the board towards the nose
+ * @returns {'left' | 'right'}
+ */
+function leadingSide(frame, along) {
+  const lead = (/** @type {number} */ left, /** @type {number} */ right) =>
+    Math.sign(along(px(frame, left)) - along(px(frame, right)));
+  const vote = 2 * lead(LM.LEFT_HIP, LM.RIGHT_HIP)
+    + lead(LM.LEFT_SHOULDER, LM.RIGHT_SHOULDER)
+    + lead(LM.LEFT_ANKLE, LM.RIGHT_ANKLE);
+  return vote >= 0 ? 'left' : 'right';
+}
+
+/**
  * @param {PoseFrame} frame
  * @param {Calibration} calib
  * @returns {StanceFeatures}
@@ -161,9 +185,7 @@ export function extractFeatures(frame, calib) {
 export function extractStanceFeatures(frame, calib) {
   const w = frame.world;
   const along = (/** @type {Vec2} */ p) => p.x * calib.noseDir;
-  const leftAnkle = px(frame, LM.LEFT_ANKLE);
-  const rightAnkle = px(frame, LM.RIGHT_ANKLE);
-  const frontFoot = along(leftAnkle) >= along(rightAnkle) ? 'left' : 'right';
+  const frontFoot = leadingSide(frame, along);
   const side = frontFoot === 'left'
     ? { front: { hip: LM.LEFT_HIP, knee: LM.LEFT_KNEE, ankle: LM.LEFT_ANKLE, shoulder: LM.LEFT_SHOULDER },
         back: { hip: LM.RIGHT_HIP, knee: LM.RIGHT_KNEE, ankle: LM.RIGHT_ANKLE, shoulder: LM.RIGHT_SHOULDER } }
@@ -198,4 +220,30 @@ export function extractStanceFeatures(frame, calib) {
     headPos: head ? between(head) : null,
     footVisibility: Math.min(frame.image[LM.LEFT_ANKLE].visibility, frame.image[LM.RIGHT_ANKLE].visibility),
   };
+}
+
+const FRAMING_LANDMARKS = [
+  LM.LEFT_SHOULDER, LM.RIGHT_SHOULDER, LM.LEFT_HIP, LM.RIGHT_HIP,
+  LM.LEFT_KNEE, LM.RIGHT_KNEE, LM.LEFT_ANKLE, LM.RIGHT_ANKLE,
+];
+
+/** @param {{ x: number, y: number }} p */
+const insideImage = (p) =>
+  p.x > FRAMING.edgeMargin && p.x < 1 - FRAMING.edgeMargin && p.y > FRAMING.edgeMargin && p.y < 1 - FRAMING.edgeMargin;
+
+/**
+ * Is the person well in the picture (green frame)? Tolerant on purpose: up to
+ * FRAMING.maxMissing body points may be hidden (the far leg in side view), but at least one
+ * foot must be seen and everything seen must be inside the image. The face isn't needed –
+ * seen from behind (goofy stance) it's hidden; the head only has to be inside the image.
+ * Thresholds: FRAMING in config.js.
+ * @param {PoseFrame | null} frame
+ */
+export function bodyInView(frame) {
+  if (!frame || !insideImage(frame.image[LM.NOSE])) return false;
+  const seen = FRAMING_LANDMARKS.filter((i) => frame.image[i].visibility >= FRAMING.minVisibility);
+  const footSeen = seen.includes(LM.LEFT_ANKLE) || seen.includes(LM.RIGHT_ANKLE);
+  return FRAMING_LANDMARKS.length - seen.length <= FRAMING.maxMissing
+    && footSeen
+    && seen.every((i) => insideImage(frame.image[i]));
 }

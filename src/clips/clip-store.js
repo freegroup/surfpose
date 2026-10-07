@@ -2,7 +2,6 @@
 // 🤙 cool and 🎯 reference clips are never removed automatically.
 import { CLIPS } from '../config.js';
 
-/** @typedef {import('./pose-track.js').PoseTrack} PoseTrack */
 /** @typedef {import('../analysis/stance-evaluator.js').StanceMeasurement} StanceMeasurement */
 
 /**
@@ -16,8 +15,6 @@ import { CLIPS } from '../config.js';
  * @property {number} duration       seconds
  * @property {Blob} video            MP4
  * @property {Blob | null} thumbnail
- * @property {boolean} mirrored      video shows the mirrored camera image
- * @property {PoseTrack} poses
  * @property {StanceMeasurement | null} measurement
  * @property {boolean} cool
  * @property {boolean} reference

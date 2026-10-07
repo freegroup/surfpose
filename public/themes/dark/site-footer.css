@@ -14,12 +14,12 @@
   stroke: currentcolor;
 }
 
-.page--start .site-footer {
+.start-screen .site-footer {
   background-color: var(--color-none);
   background-image: linear-gradient(to top, var(--color-hero-scrim), var(--color-none));
   color: var(--color-hero-text);
 }
 
-.page--start .site-footer__link {
+.start-screen .site-footer__link {
   color: var(--color-hero-text);
 }

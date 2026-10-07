@@ -21,9 +21,13 @@ export function initCameraView(root) {
   return {
     video,
     canvas,
-    /** @param {{ visible: boolean, status?: string, mirrored?: boolean, clipsAvailable?: boolean }} state */
-    render({ visible, status: text = '', mirrored = true, clipsAvailable = false }) {
+    /**
+     * @param {{ visible: boolean, status?: string, mirrored?: boolean, clipsAvailable?: boolean,
+     *   framing?: 'good' | 'bad' | 'none' }} state  framing: is the whole body in the picture?
+     */
+    render({ visible, status: text = '', mirrored = true, clipsAvailable = false, framing = 'none' }) {
       clips.hidden = !clipsAvailable;
+      root.dataset.framing = framing;
       root.hidden = !visible;
       root.toggleAttribute('data-mirrored', mirrored);
       status.textContent = text;

@@ -1,0 +1,27 @@
+.celebration {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.celebration__text {
+  margin: 0;
+  font-size: clamp(3rem, 18vw, 11rem);
+  line-height: 1;
+}
+
+.celebration--pop .celebration__text {
+  animation: celebration-pop 1.8s ease-out both;
+}
+
+@keyframes celebration-pop {
+  0% { transform: scale(0.4); }
+  15% { transform: scale(1.1); }
+  30% { transform: scale(1); }
+  80% { transform: scale(1); }
+  100% { transform: scale(1); }
+}

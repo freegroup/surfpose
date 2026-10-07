@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { calibrate } from '../src/analysis/board-axis.js';
-import { extractFeatures, extractStanceFeatures } from '../src/analysis/features.js';
+import { bodyInView, extractFeatures, extractStanceFeatures } from '../src/analysis/features.js';
+import { LM } from '../src/pose/landmarks.js';
 import { synthFrame, TEMPLATES } from './helpers/synth.js';
 
 /** @param {1 | -1} noseDir */
@@ -93,6 +94,16 @@ describe('extractStanceFeatures', () => {
     }
   }
 
+  for (const stance of /** @type {const} */ (['regular', 'goofy'])) {
+    it(`${stance}: hips and shoulders win when the model swaps the ankle labels`, () => {
+      const calib = /** @type {import('../src/analysis/features.js').Calibration} */ (calibrate(lyingFrames(1)));
+      const frame = synthFrame({ template: TEMPLATES.stance, stance });
+      const [l, r] = [frame.image[LM.LEFT_ANKLE], frame.image[LM.RIGHT_ANKLE]];
+      [frame.image[LM.LEFT_ANKLE], frame.image[LM.RIGHT_ANKLE]] = [r, l]; // as seen on the real surfer photo
+      expect(extractStanceFeatures(frame, calib).frontFoot).toBe(stance === 'regular' ? 'left' : 'right');
+    });
+  }
+
   const calib = /** @type {import('../src/analysis/features.js').Calibration} */ (calibrate(lyingFrames(1)));
 
   it('upright stance: almost straight knees, no lean', () => {
@@ -106,5 +117,34 @@ describe('extractStanceFeatures', () => {
     const down = extractStanceFeatures(synthFrame({ template: TEMPLATES.lookDown }), calib);
     expect(/** @type {number} */ (good.gazePitch)).toBeLessThan(15);
     expect(/** @type {number} */ (down.gazePitch)).toBeGreaterThan(40);
+  });
+});
+
+describe('bodyInView', () => {
+  it('is true for a fully visible person, lying or standing', () => {
+    expect(bodyInView(synthFrame({ template: TEMPLATES.lying }))).toBe(true);
+    expect(bodyInView(synthFrame({ template: TEMPLATES.stance }))).toBe(true);
+  });
+
+  it('does not need the face – seen from behind it is hidden', () => {
+    expect(bodyInView(synthFrame({ template: TEMPLATES.stance, visibility: { NOSE: 0.1, LEFT_EAR: 0.1, RIGHT_EAR: 0.1 } }))).toBe(true);
+  });
+
+  it('tolerates the hidden far leg in side view', () => {
+    expect(bodyInView(synthFrame({ template: TEMPLATES.lying, visibility: { RIGHT_KNEE: 0.1, RIGHT_ANKLE: 0.1 } }))).toBe(true);
+  });
+
+  it('is false without a person, without any visible foot or with too much hidden', () => {
+    expect(bodyInView(null)).toBe(false);
+    expect(bodyInView(synthFrame({ template: TEMPLATES.stance, visibility: { LEFT_ANKLE: 0.1, RIGHT_ANKLE: 0.1 } }))).toBe(false);
+    expect(bodyInView(synthFrame({
+      template: TEMPLATES.stance, visibility: { LEFT_KNEE: 0.1, RIGHT_KNEE: 0.1, LEFT_HIP: 0.1 },
+    }))).toBe(false);
+  });
+
+  it('is false when the body is cut off at the image border', () => {
+    const frame = synthFrame({ template: TEMPLATES.lying });
+    frame.image.forEach((p) => { p.x += 0.4; }); // feet still inside, head pushed out to the right
+    expect(bodyInView(frame)).toBe(false);
   });
 });

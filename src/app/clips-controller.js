@@ -2,8 +2,8 @@ import { buildProfile } from '../analysis/reference-profile.js';
 import { createClipRecorder } from '../clips/clip-recorder.js';
 import { renderBadge, renderLogo } from '../clips/clip-overlays.js';
 import { listClips, saveClip } from '../clips/clip-store.js';
-import { toPoseTrack } from '../clips/pose-track.js';
 import { CLIPS } from '../config.js';
+import { readSkeletonColors } from '../render/skeleton-renderer.js';
 
 /** @typedef {import('../pose/types.js').PoseFrame} PoseFrame */
 /** @typedef {import('../analysis/reference-profile.js').Profile} Profile */
@@ -21,9 +21,6 @@ export function createClipsController() {
   const recorder = createClipRecorder(storeClip);
   let videoHeight = 720;
 
-  /** pose frames of the last seconds, sliced into each clip */
-  /** @type {PoseFrame[]} */
-  let poses = [];
   /** what is known about the pop-up whose clip is being recorded */
   /** @type {{ popupSeconds: number, measurement: StanceMeasurement | null, evaluation: StanceEvaluation | null } | null} */
   let pending = null;
@@ -35,7 +32,6 @@ export function createClipsController() {
     recorder.setOverlays({ badge: null });
     const info = pending;
     pending = null;
-    const endT = recorded.startT + recorded.duration * 1000 + 50;
     try {
       await saveClip({
         id: crypto.randomUUID(),
@@ -47,8 +43,6 @@ export function createClipsController() {
         duration: recorded.duration,
         video: recorded.video,
         thumbnail: recorded.thumbnail,
-        mirrored: true,
-        poses: toPoseTrack(poses.filter((p) => p.t >= recorded.startT && p.t <= endT), recorded.startT),
         measurement: info?.measurement ?? null,
         cool: false,
         reference: false,
@@ -58,6 +52,8 @@ export function createClipsController() {
     }
     onSaved?.();
   }
+
+  window.addEventListener('themechange', () => recorder.setSkeletonColors(readSkeletonColors()));
 
   /** @param {string} text */
   async function showBadge(text) {
@@ -79,10 +75,12 @@ export function createClipsController() {
      * @returns {Promise<boolean>} whether this browser can record clips
      */
     async start(video) {
-      const ok = await recorder.init(video, { mirror: true });
+      // unmirrored: in a mirror a goofy surfer looks regular – the clip shows the real stance
+      const ok = await recorder.init(video, { mirror: false });
       if (!ok) return false;
       videoHeight = Math.min(video.videoHeight, CLIPS.maxLongSide);
       recorder.setOverlays({ logo: await renderLogo(videoHeight), badge: null });
+      recorder.setSkeletonColors(readSkeletonColors());
       return true;
     },
 
@@ -93,10 +91,7 @@ export function createClipsController() {
 
     /** @param {PoseFrame | null} frame */
     addPose(frame) {
-      if (!frame) return;
-      poses.push(frame);
-      const keepMs = CLIPS.preMs + CLIPS.postMs + 3000;
-      while (poses.length && frame.t - poses[0].t > keepMs) poses.shift();
+      if (frame) recorder.setPose(frame);
     },
 
     /** A new pop-up starts: the running clip ends here, the badge goes away. */

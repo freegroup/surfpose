@@ -8,7 +8,7 @@
   <script src="/theme-init.js"></script>
   <script type="module" src="/src/app/main.js"></script>
 </head>
-<body class="page page--start">
+<body class="page">
   <header class="site-header site-header--overlay">
     <!-- include:theme-switch -->
   </header>
@@ -24,6 +24,8 @@
       </h1>
 
       <button class="button button--primary button--large start-screen__start" type="button">Start</button>
+
+      <!-- include:site-footer -->
     </section>
 
     <section class="camera-view" hidden>
@@ -47,10 +49,10 @@
       <section class="setup-hints" hidden>
         <h2 class="setup-hints__title">So klappt's</h2>
         <ul class="setup-hints__list">
-          <li>Kamera seitlich zu dir, möglichst im Querformat.</li>
-          <li>Dein ganzer Körper ist im Bild – im Liegen und im Stehen.</li>
-          <li>Gutes Licht, Kleidung mit Kontrast zum Hintergrund.</li>
-          <li>Leg dich in die Paddelposition, Kopf hoch, Blick nach vorn.</li>
+          <li>Kamera <strong>seitlich</strong> zu dir, möglichst im <strong>Querformat</strong>.</li>
+          <li>Dein <strong>ganzer Körper</strong> ist im Bild – im Liegen und im Stehen.</li>
+          <li><strong>Gutes Licht</strong>, Kleidung mit <strong>Kontrast</strong> zum Hintergrund.</li>
+          <li>Leg dich in die <strong>Paddelposition</strong>, Kopf hoch, Blick nach vorn.</li>
         </ul>
         <p class="setup-hints__privacy">Alles bleibt auf deinem Gerät – kein Upload, kein Tracking.</p>
       </section>
@@ -82,10 +84,13 @@
         <span class="timer__value">0,00 s</span>
         <p class="timer__hint"></p>
       </div>
+
+      <div class="celebration" hidden aria-hidden="true">
+        <p class="celebration__text">Yeah!</p>
+      </div>
     </section>
 
   </main>
 
-  <!-- include:site-footer -->
 </body>
 </html>

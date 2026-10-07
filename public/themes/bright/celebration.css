@@ -1,0 +1,8 @@
+.celebration__text {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  text-shadow: var(--shadow-hero-text);
+}

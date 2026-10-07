@@ -1,5 +1,6 @@
 import { PHASES } from '../config.js';
 import { calibrate } from './board-axis.js';
+import { createDwell } from './dwell.js';
 import { extractFeatures } from './features.js';
 import { classifyPhase, shoulderRise } from './phase-detector.js';
 
@@ -26,27 +27,6 @@ import { classifyPhase, shoulderRise } from './phase-detector.js';
  *   | { type: 'abort' }
  *   | { type: 'timeout' }} SessionEvent
  */
-
-/** Holds when `cond` has been true for `ms`; `since` is when it became true. */
-function createDwell() {
-  /** @type {number | null} */
-  let since = null;
-  return {
-    /** @param {boolean} cond @param {number} t @param {number} ms */
-    hold(cond, t, ms) {
-      if (!cond) {
-        since = null;
-        return false;
-      }
-      since ??= t;
-      return t - since >= ms;
-    },
-    since: () => /** @type {number} */ (since),
-    reset() {
-      since = null;
-    },
-  };
-}
 
 /**
  * Pop-up state machine: waits for the paddle position, calibrates, times the pop-up

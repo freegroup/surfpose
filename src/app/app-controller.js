@@ -1,7 +1,9 @@
+import { bodyInView } from '../analysis/features.js';
+import { FRAMING, STAND_MODE } from '../config.js';
 import { DEFAULT_PROFILE } from '../analysis/reference-profile.js';
 import { evaluateStance, measureStance } from '../analysis/stance-evaluator.js';
-import { initSiteFooter } from '../components/site-footer/site-footer.js';
 import { initCameraView } from '../components/camera-view/camera-view.js';
+import { initCelebration } from '../components/celebration/celebration.js';
 import { initResultCard } from '../components/result-card/result-card.js';
 import { initSetupHints } from '../components/setup-hints/setup-hints.js';
 import { initStartScreen } from '../components/start-screen/start-screen.js';
@@ -23,6 +25,7 @@ const BEST_KEY = 'ok-best-time';
 
 const HINTS = {
   nobody: 'Stell dich so hin, dass die Kamera dich ganz sieht.',
+  partial: 'Ganzer Körper ins Bild – auch die Füße.',
   waiting: 'Leg dich seitlich zur Kamera in die Paddelposition.',
   ready: 'Bereit – spring auf, wann du willst!',
   running: 'Los, los, los!',
@@ -39,12 +42,12 @@ export function initAppController() {
   initPageChrome();
 
   const startScreen = initStartScreen($('.start-screen'));
-  const footer = initSiteFooter($('.site-footer'));
   const cameraView = initCameraView($('.camera-view'));
   const timer = initTimer($('.timer'));
   const stats = initStats($('.stats'));
   const resultCard = initResultCard($('.result-card'));
   const setupHints = initSetupHints($('.setup-hints'));
+  const celebration = initCelebration($('.celebration'));
   const skeleton = createSkeletonRenderer(cameraView.canvas);
 
   /** @type {import('../analysis/reference-profile.js').Profile} */
@@ -52,6 +55,10 @@ export function initAppController() {
   const clips = createClipsController();
   clips.loadProfile().then((p) => { profile = p; }, (error) => console.error('Loading references failed', error));
   let clipsAvailable = false;
+  /** @type {'good' | 'bad' | 'none'} */
+  let framing = 'none';
+  /** @type {{ value: 'good' | 'bad', since: number } | null} */
+  let framingCandidate = null;
 
   const engine = createEngineClient(onResult);
   /** @type {Promise<import('../engine/engine-client.js').EngineInfo> | null} */
@@ -88,13 +95,11 @@ export function initAppController() {
 
   function showStart() {
     startScreen.render({ visible: true });
-    footer.render({ visible: true });
     cameraView.render({ visible: false });
   }
 
   async function startTraining() {
     startScreen.render({ visible: false });
-    footer.render({ visible: false });
     cameraView.render({ visible: true, status: 'Kamera wird gestartet …' });
 
     try {
@@ -111,7 +116,9 @@ export function initAppController() {
     clipsAvailable = canRecord;
     if (import.meta.env.DEV) metrics = createDevMetrics(`${info.mode}/${info.delegate}, clips: ${canRecord}`);
 
-    cameraView.render({ visible: true, clipsAvailable });
+    framing = 'none';
+    framingCandidate = null;
+    cameraView.render({ visible: true, clipsAvailable, framing });
     timer.render({ seconds: lastSeconds, state: 'waiting', hint: HINTS.waiting });
     stopLoop = startFrameLoop(cameraView.video, grabFrame);
   }
@@ -125,6 +132,7 @@ export function initAppController() {
     skeleton.clear();
     resultCard.render({ visible: false });
     setupHints.render({ visible: false });
+    celebration.hide();
     showStart();
   }
 
@@ -143,6 +151,7 @@ export function initAppController() {
   function onResult(result) {
     if (!stopLoop) return; // a late result after stopping
     skeleton.draw(result.frame, { mirror: true });
+    updateFraming(result);
     metrics?.record(result.inferenceMs);
     recorder?.add(result.frame);
     clips.addPose(result.frame);
@@ -151,15 +160,27 @@ export function initAppController() {
       if (event.type === 'start') {
         lastOutcome = null;
         resultCard.render({ visible: false });
+        celebration.hide();
         clips.popupStarted();
       }
       if (event.type === 'abort') lastOutcome = 'aborted';
       if (event.type === 'timeout') lastOutcome = 'timeout';
       if (event.type === 'done') finishPopup(event.run);
       if (event.type === 'stance') showEvaluation(event);
+      if (event.type === 'stand') celebrateStand(event);
     }
     renderTimer(result);
     setupHints.render({ visible: result.state === 'IDLE' && reps === 0 });
+  }
+
+  /**
+   * Stand mode runs alongside the pop-up timing: whenever a good surf stance is held
+   * (whether after a pop-up or just standing there), it gets a "Yeah!".
+   * @param {import('../analysis/stand-session.js').StandEvent} event
+   */
+  function celebrateStand({ frames, calib }) {
+    const evaluation = evaluateStance(measureStance(frames, null, calib), profile);
+    if (evaluation.score >= STAND_MODE.yeahScore) celebration.show({ message: 'Yeah!' });
   }
 
   /** @param {import('../analysis/popup-session.js').PopupRun} run */
@@ -184,6 +205,20 @@ export function initAppController() {
     clips.evaluated(measurement, evaluation);
   }
 
+  /**
+   * Green frame when the person is well in the picture, red otherwise (see bodyInView).
+   * Changes only after holding for FRAMING.holdMs, so single dropped frames don't make it flicker.
+   * @param {EngineResult} result
+   */
+  function updateFraming({ frame, t }) {
+    const value = bodyInView(frame) ? 'good' : 'bad';
+    if (framingCandidate?.value !== value) framingCandidate = { value, since: t };
+    if (value !== framing && t - framingCandidate.since >= FRAMING.holdMs) {
+      framing = value;
+      cameraView.render({ visible: true, clipsAvailable, framing });
+    }
+  }
+
   /** @param {EngineResult} result */
   function renderTimer({ state, run, t, frame }) {
     if (state === 'RUNNING' && run) {
@@ -197,7 +232,7 @@ export function initAppController() {
     }
     /** @type {TimerState} */
     const shown = state === 'DONE' ? 'done' : state === 'TIMEOUT' ? 'timeout' : 'waiting';
-    const hint = !frame ? HINTS.nobody : HINTS[lastOutcome ?? 'waiting'];
+    const hint = !frame ? HINTS.nobody : framing === 'bad' ? HINTS.partial : HINTS[lastOutcome ?? 'waiting'];
     timer.render({ seconds: state === 'TIMEOUT' ? 20 : lastSeconds, state: shown, hint });
   }
 }

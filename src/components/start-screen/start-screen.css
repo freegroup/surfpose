@@ -1,21 +1,31 @@
+/* Sizes follow width AND height, so the screen fits short laptop windows without scrolling. */
 .start-screen {
+  --start-screen-gutter: 1.5rem;
+
   position: relative;
   flex: 1;
   min-height: 100dvh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr auto auto;
   justify-items: center;
-  gap: 2rem;
-  padding: calc(env(safe-area-inset-top) + 3.5rem) 1.5rem calc(env(safe-area-inset-bottom) + 6.5rem);
+  gap: clamp(1rem, 3dvh, 2rem);
+  padding: calc(env(safe-area-inset-top) + clamp(2.5rem, 7dvh, 3.5rem)) var(--start-screen-gutter) 0;
 }
 
 .start-screen__logo {
   justify-self: center;
-  font-size: clamp(2.5rem, 11vw, 4.5rem);
+  font-size: clamp(2rem, min(11vw, 7dvh), 4.5rem);
 }
 
 .start-screen__start {
   justify-self: center;
+  font-size: clamp(1.75rem, 5dvh, 2.75rem);
+}
+
+/* the site footer is the last row, on top of the hero image – never overlapping the content */
+.start-screen > .site-footer {
+  justify-self: stretch;
+  margin-inline: calc(-1 * var(--start-screen-gutter));
 }
 
 .start-screen__title {
@@ -25,7 +35,7 @@
   align-items: flex-start;
   gap: 0.12em;
   margin: 0;
-  font-size: clamp(3.25rem, 15vw, 7rem);
+  font-size: clamp(2.5rem, min(15vw, 11dvh), 7rem);
   line-height: 1;
 }
 
@@ -63,16 +73,16 @@
 /* Laptop / landscape: title and START on the left, image stays full-bleed */
 @media (orientation: landscape) and (min-width: 900px) {
   .start-screen {
+    --start-screen-gutter: 8vw;
+
     justify-items: start;
-    padding-left: 8vw;
-    padding-right: 8vw;
   }
 
   .start-screen__logo {
-    font-size: 3.5rem;
+    font-size: clamp(2rem, 7dvh, 3.5rem);
   }
 
   .start-screen__title {
-    font-size: clamp(4rem, 9vw, 8rem);
+    font-size: clamp(2.5rem, min(9vw, 12dvh), 8rem);
   }
 }

@@ -51,6 +51,17 @@ export const TEMPLATES = {
   },
 };
 
+/** Standing, bent forward at the hips (e.g. reaching for the laptop): torso flat, feet under the hips. */
+TEMPLATES.bentOver = {
+  nose: [0.78, 0.9, 0], frontEar: [0.7, 0.95, 0.06], backEar: [0.7, 0.95, -0.06],
+  frontShoulder: [0.5, 1.0, 0.18], backShoulder: [0.5, 1.0, -0.18],
+  frontElbow: [0.55, 0.75, 0.2], backElbow: [0.55, 0.75, -0.2],
+  frontWrist: [0.6, 0.5, 0.2], backWrist: [0.6, 0.5, -0.2],
+  frontHip: [0, 0.92, 0.12], backHip: [0, 0.92, -0.12],
+  frontKnee: [0.02, 0.5, 0.12], backKnee: [0.02, 0.5, -0.12],
+  frontAnkle: [0, 0.07, 0.12], backAnkle: [0, 0.07, -0.12],
+};
+
 /** Stance with the chin dropped: looking down at the board. */
 TEMPLATES.lookDown = { ...TEMPLATES.stance, nose: [0.27, 1.43, 0] };
 /** Halfway up with the back knee on the board. */

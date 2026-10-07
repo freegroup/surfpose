@@ -5,6 +5,17 @@
   overflow: hidden;
 }
 
+/* frame around the picture: is the whole body visible? (colors in the theme) */
+.camera-view::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-width: clamp(6px, 1vw, 12px);
+  pointer-events: none;
+  transition: border-color 200ms ease;
+}
+
 .camera-view__video,
 .camera-view__overlay {
   position: absolute;

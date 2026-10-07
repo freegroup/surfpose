@@ -15,11 +15,6 @@
   color: var(--color-on-accent);
 }
 
-.clip-player__skeleton,
 .clip-player__note {
   color: var(--color-text-muted);
-}
-
-.clip-player__skeleton input {
-  accent-color: var(--color-accent);
 }

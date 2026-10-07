@@ -70,8 +70,8 @@ function featureValue(s, key) {
 
 /**
  * Median values over the stance window, criteria with too few visible frames are null.
- * @param {PoseFrame[]} frames  stance frames from the session's `stance` event
- * @param {PopupRun} run
+ * @param {PoseFrame[]} frames  stance frames from the session's `stance` / `stand` event
+ * @param {PopupRun | null} run  null in stand mode: the pop-up criteria can't be measured
  * @param {Calibration} calib
  * @returns {StanceMeasurement}
  */
@@ -79,7 +79,7 @@ export function measureStance(frames, run, calib) {
   const measured = frames.map((frame) => ({ frame, s: extractStanceFeatures(frame, calib) }));
 
   /** @type {Record<string, number | boolean | null>} */
-  const values = { popupGaze: run.maxGazePitch, kneeDown: run.kneeDown };
+  const values = { popupGaze: run?.maxGazePitch ?? null, kneeDown: run?.kneeDown ?? null };
   for (const [key, needs] of Object.entries(NEEDS)) {
     const usable = measured.filter(({ frame }) => visible(frame, needs));
     const raw = usable.map(({ s }) => featureValue(s, key)).filter((v) => v !== null);

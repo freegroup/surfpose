@@ -1,9 +1,7 @@
 import { deleteClip, listClips, updateClip } from '../clips/clip-store.js';
-import { poseAt } from '../clips/pose-track.js';
 import { shareClip } from '../clips/share.js';
 import { initClipGallery } from '../components/clip-gallery/clip-gallery.js';
 import { initClipPlayer } from '../components/clip-player/clip-player.js';
-import { createSkeletonRenderer } from '../render/skeleton-renderer.js';
 import { initPageChrome } from './page-chrome.js';
 
 /** @typedef {import('../clips/clip-store.js').Clip} Clip */
@@ -21,7 +19,6 @@ export function initClipsPage() {
 
   const gallery = initClipGallery($('.clip-gallery'));
   const player = initClipPlayer($('.clip-player'));
-  const skeleton = createSkeletonRenderer(player.canvas);
 
   /** @type {Clip[]} */
   let clips = [];
@@ -29,7 +26,6 @@ export function initClipsPage() {
   const urls = new Map();
   /** @type {Clip | null} */
   let open = null;
-  let showSkeleton = false;
   let status = '';
 
   refresh();
@@ -39,10 +35,6 @@ export function initClipsPage() {
     renderPlayer();
   });
   document.addEventListener('player:close', closePlayer);
-  document.addEventListener('player:skeleton', (e) => {
-    showSkeleton = /** @type {CustomEvent} */ (e).detail.on;
-    drawSkeleton();
-  });
   document.addEventListener('clip:toggle-cool', (e) => toggle(/** @type {CustomEvent} */ (e).detail.id, 'cool'));
   document.addEventListener('clip:toggle-reference', (e) => toggle(/** @type {CustomEvent} */ (e).detail.id, 'reference'));
   document.addEventListener('clip:delete', async (e) => {
@@ -63,16 +55,6 @@ export function initClipsPage() {
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && open) closePlayer();
-  });
-
-  player.video.addEventListener('seeked', drawSkeleton);
-  player.video.addEventListener('play', () => {
-    /** @type {VideoFrameRequestCallback} */
-    const tick = () => {
-      drawSkeleton();
-      if (!player.video.paused) player.video.requestVideoFrameCallback(tick);
-    };
-    player.video.requestVideoFrameCallback(tick);
   });
 
   async function refresh() {
@@ -120,20 +102,11 @@ export function initClipsPage() {
         cool: open.cool, reference: open.reference, canReference: canReference(open),
       },
     });
-    drawSkeleton();
   }
 
   function closePlayer() {
     open = null;
     player.render({ visible: false });
-  }
-
-  function drawSkeleton() {
-    if (!open || !showSkeleton) {
-      skeleton.clear();
-      return;
-    }
-    skeleton.draw(poseAt(open.poses, player.video.currentTime), { mirror: open.mirrored, objectFit: 'contain' });
   }
 
   /** @param {string} id @param {'cool' | 'reference'} mark */

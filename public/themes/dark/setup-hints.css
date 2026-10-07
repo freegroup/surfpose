@@ -14,3 +14,8 @@
 .setup-hints__privacy {
   color: var(--color-text-muted);
 }
+
+.setup-hints__list strong {
+  color: var(--color-highlight);
+  font-weight: 600;
+}

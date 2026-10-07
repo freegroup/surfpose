@@ -11,16 +11,14 @@
 const SPEEDS = [0.25, 0.5, 1];
 
 /**
- * Replay of one clip. Speed and jumping are handled here; everything that touches data is an
- * event: clip:share / clip:toggle-cool / clip:toggle-reference / clip:delete (`{ id }`),
- * player:skeleton (`{ on }`), player:close.
+ * Replay of one clip (skeleton, logo and result are burned into the video). Speed and jumping
+ * are handled here; everything that touches data is an event:
+ * clip:share / clip:toggle-cool / clip:toggle-reference / clip:delete (`{ id }`), player:close.
  * @param {HTMLElement} root
  */
 export function initClipPlayer(root) {
   const $ = (/** @type {string} */ s) => /** @type {HTMLElement} */ (root.querySelector(s));
   const video = /** @type {HTMLVideoElement} */ ($('.clip-player__video'));
-  const canvas = /** @type {HTMLCanvasElement} */ ($('.clip-player__overlay'));
-  const skeleton = /** @type {HTMLInputElement} */ ($('.clip-player__skeleton-toggle'));
   const cool = $('.clip-player__cool');
   const reference = $('.clip-player__reference');
   const remove = $('.clip-player__delete');
@@ -46,7 +44,6 @@ export function initClipPlayer(root) {
     video.currentTime = Math.max(0, clip.standOffset - 1.5);
     video.play();
   });
-  skeleton.addEventListener('change', () => emit('player:skeleton', { on: skeleton.checked }));
   $('.clip-player__share').addEventListener('click', () => clip && emit('clip:share', { id: clip.id }));
   cool.addEventListener('click', () => clip && emit('clip:toggle-cool', { id: clip.id }));
   reference.addEventListener('click', () => clip && emit('clip:toggle-reference', { id: clip.id }));
@@ -62,8 +59,6 @@ export function initClipPlayer(root) {
   $('.clip-player__close').addEventListener('click', () => emit('player:close'));
 
   return {
-    video,
-    canvas,
     /** @param {{ visible: boolean, clip?: PlayerClip | null, note?: string }} state */
     render({ visible, clip: next = null, note: text = '' }) {
       root.hidden = !visible;

@@ -9,11 +9,8 @@
   text-align: center;
 }
 
-/* start page: floating over the hero image */
-.page--start .site-footer {
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 10;
+/* start page: part of the hero, see start-screen.css */
+.start-screen .site-footer {
   border-top-width: 0;
 }
 

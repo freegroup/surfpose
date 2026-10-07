@@ -43,3 +43,30 @@ export function calibrate(frames) {
     shoulderHeight: median(bodies.map((b) => (groundY - b.shoulder.y) / torsoLen)),
   };
 }
+
+/**
+ * Calibration from a person standing in surf stance (stand mode – no lying phase):
+ * the nose direction comes from the gaze (surfers look towards the nose), the floor from the feet.
+ * @param {PoseFrame[]} frames
+ * @returns {Calibration | null} null when the gaze isn't visible
+ */
+export function calibrateStanding(frames) {
+  const gazeDirs = frames.map(gaze).filter((g) => g !== null).map((g) => g.dirX);
+  const direction = Math.sign(gazeDirs.reduce((s, d) => s + d, 0));
+  if (!frames.length || direction === 0) return null;
+
+  const bodies = frames.map((f) => {
+    const shoulder = mid(px(f, LM.LEFT_SHOULDER), px(f, LM.RIGHT_SHOULDER));
+    const hip = mid(px(f, LM.LEFT_HIP), px(f, LM.RIGHT_HIP));
+    return { shoulder, torsoLen: dist(shoulder, hip), lowest: Math.max(px(f, LM.LEFT_ANKLE).y, px(f, LM.RIGHT_ANKLE).y) };
+  });
+  const groundY = median(bodies.map((b) => b.lowest));
+  const torsoLen = median(bodies.map((b) => b.torsoLen));
+  return {
+    noseDir: /** @type {1 | -1} */ (direction),
+    gazeAgrees: true,
+    groundY,
+    torsoLen,
+    shoulderHeight: median(bodies.map((b) => (groundY - b.shoulder.y) / torsoLen)),
+  };
+}

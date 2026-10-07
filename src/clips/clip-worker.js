@@ -1,10 +1,11 @@
 // Clip worker: encodes every camera frame (with logo/badge burned in) into a ring buffer and,
 // on a stand, cuts [stand − pre, stand + post] out of it as an MP4. Protocol:
 //   in:  init { width, height, mirror } | frame { frame: VideoFrame, t } | overlay { logo?, badge? }
-//        | trigger { standT } | finish
+//        | pose { image, frameWidth, frameHeight, t } | colors { colors } | trigger { standT } | finish
 //   out: ready { supported } | clip { mp4, thumbnail, startT, standOffset, duration } | error { message }
 import { BufferTarget, EncodedPacket, EncodedVideoPacketSource, Mp4OutputFormat, Output } from 'mediabunny';
 import { CLIPS } from '../config.js';
+import { drawSkeleton } from '../render/draw-skeleton.js';
 
 // H.264 baseline/main/high – plays everywhere and is accepted by the share targets
 const CODECS = ['avc1.42001f', 'avc1.4d001f', 'avc1.640028'];
@@ -24,6 +25,12 @@ let logo = null;
 /** @type {ImageBitmap | null} */
 let badge = null;
 let lastKeyT = -Infinity;
+/** latest detected pose – drawn into the frames until the next one arrives */
+/** @type {{ image: import('../pose/types.js').ImageLandmark[], frameWidth: number, frameHeight: number, t: number } | null} */
+let pose = null;
+/** @type {import('../render/draw-skeleton.js').SkeletonColors | null} */
+let skeletonColors = null;
+const POSE_MAX_AGE_MS = 250;
 
 /** @type {EncodedVideoChunk[]} */
 let ring = [];
@@ -72,6 +79,10 @@ function encodeFrame(frame, t) {
   ctx.drawImage(frame, 0, 0, width, height);
   ctx.restore();
   frame.close();
+
+  if (pose && skeletonColors && Math.abs(t - pose.t) < POSE_MAX_AGE_MS) {
+    drawSkeleton(ctx, pose.image, { ...pose, width, height, mirror, objectFit: 'cover' }, skeletonColors);
+  }
 
   const margin = Math.round(height * 0.04);
   if (logo) ctx.drawImage(logo, margin, margin);
@@ -155,6 +166,10 @@ self.onmessage = async ({ data }) => {
     } else if (data.type === 'overlay') {
       if ('logo' in data) logo = data.logo;
       if ('badge' in data) badge = data.badge;
+    } else if (data.type === 'pose') {
+      pose = data;
+    } else if (data.type === 'colors') {
+      skeletonColors = data.colors;
     } else if (data.type === 'trigger') {
       startCapture(data.standT);
     } else if (data.type === 'finish') {

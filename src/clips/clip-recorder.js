@@ -71,6 +71,16 @@ export function createClipRecorder(onClip) {
       worker?.postMessage({ type: 'overlay', ...overlays }, transfer);
     },
 
+    /** Latest detected pose, burned into the clip as skeleton. @param {import('../pose/types.js').PoseFrame} frame */
+    setPose(frame) {
+      worker?.postMessage({ type: 'pose', image: frame.image, frameWidth: frame.width, frameHeight: frame.height, t: frame.t });
+    },
+
+    /** @param {import('../render/draw-skeleton.js').SkeletonColors} colors */
+    setSkeletonColors(colors) {
+      worker?.postMessage({ type: 'colors', colors });
+    },
+
     /** Starts capturing a clip around the stand at `standT` (ms). */
     trigger(/** @type {number} */ standT) {
       worker?.postMessage({ type: 'trigger', standT });
