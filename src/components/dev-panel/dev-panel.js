@@ -35,27 +35,43 @@ export function initDevPanel(root) {
     emit(target.closest('.dev-panel__reset') ? 'dev:reset' : 'dev:take', { key: row.dataset.key });
   });
 
+  // Rows are created once per key and then only updated. The table renders ~10× per second
+  // while the camera runs; replacing the rows would swallow clicks whose press and release
+  // land on different (replaced) elements.
+  /** @type {Map<string, HTMLElement>} */
+  const rowsByKey = new Map();
+
   /** @param {DevRow} r */
   function row(r) {
-    const tr = /** @type {HTMLElement} */ (/** @type {DocumentFragment} */ (template.content.cloneNode(true)).firstElementChild);
-    const cell = (/** @type {string} */ s) => /** @type {HTMLElement} */ (tr.querySelector(s));
-    tr.dataset.key = r.key;
-    tr.dataset.status = r.status;
-    tr.toggleAttribute('data-own', r.own);
-    cell('.dev-panel__json').textContent = r.key;
-    cell('.dev-panel__label').textContent = r.label;
-    cell('.dev-panel__personal').textContent = r.personal;
-    cell('.dev-panel__current').textContent = r.current;
-    cell('.dev-panel__reference').textContent = r.reference;
-    cell('.dev-panel__range').textContent = r.range;
-    cell('.dev-panel__reset').hidden = !r.own; // like a slicer: only where a personal value is set
-    return tr;
+    let tr = rowsByKey.get(r.key);
+    if (!tr) {
+      tr = /** @type {HTMLElement} */ (/** @type {DocumentFragment} */ (template.content.cloneNode(true)).firstElementChild);
+      tr.dataset.key = r.key;
+      rowsByKey.set(r.key, tr);
+    }
+    const el = tr;
+    const set = (/** @type {string} */ s, /** @type {string} */ text) => {
+      const cell = /** @type {HTMLElement} */ (el.querySelector(s));
+      if (cell.textContent !== text) cell.textContent = text;
+    };
+    el.dataset.status = r.status;
+    el.toggleAttribute('data-own', r.own);
+    set('.dev-panel__json', r.key);
+    set('.dev-panel__label', r.label);
+    set('.dev-panel__personal', r.personal);
+    set('.dev-panel__current', r.current);
+    set('.dev-panel__reference', r.reference);
+    set('.dev-panel__range', r.range);
+    /** @type {HTMLElement} */ (el.querySelector('.dev-panel__reset')).hidden = !r.own; // like a slicer: only where a personal value is set
+    return el;
   }
 
   return {
     /** @param {{ rows: DevRow[], model: string, status: string }} state */
     render({ rows, model: modelText, status: statusText }) {
-      body.replaceChildren(...rows.map(row));
+      const trs = rows.map(row);
+      const same = trs.length === body.children.length && trs.every((tr, i) => body.children[i] === tr);
+      if (!same) body.replaceChildren(...trs);
       model.textContent = modelText;
       status.textContent = statusText;
       status.hidden = !statusText;
