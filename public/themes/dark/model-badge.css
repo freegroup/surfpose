@@ -1,0 +1,8 @@
+.model-badge {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}

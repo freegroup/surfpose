@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Developer – Ocean Kraft Pop-Up Speed Analysis</title>
+  <!-- include:head-meta -->
+  <script src="/theme-init.js"></script>
+  <script type="module" src="/src/app/developer-main.js"></script>
+</head>
+<body class="page">
+  <!-- include:site-header -->
+
+  <main class="dev-panel">
+    <div class="dev-panel__toolbar">
+      <button class="button button--primary dev-panel__copy" type="button">In Zwischenablage kopieren</button>
+      <button class="button dev-panel__save" type="button">Referenzen speichern</button>
+      <button class="button button--danger dev-panel__clear" type="button">Referenzen löschen</button>
+      <p class="dev-panel__model"></p>
+    </div>
+
+    <section class="camera-view">
+      <video class="camera-view__video" autoplay playsinline muted></video>
+      <canvas class="camera-view__overlay"></canvas>
+      <p class="camera-view__status" role="status" hidden></p>
+    </section>
+
+    <section class="dev-panel__side">
+      <p class="dev-panel__status" role="status" hidden></p>
+      <table class="dev-panel__table">
+        <thead>
+          <tr><th>Key</th><th>Ist</th><th>Soll</th><th>Spielraum</th></tr>
+        </thead>
+        <tbody class="dev-panel__rows"></tbody>
+      </table>
+      <template class="dev-panel__row-template">
+        <tr class="dev-panel__row">
+          <td><span class="dev-panel__json"></span><span class="dev-panel__label"></span></td>
+          <td class="dev-panel__current"></td>
+          <td class="dev-panel__reference"></td>
+          <td class="dev-panel__range"></td>
+        </tr>
+      </template>
+      <p class="dev-panel__hint">Gelenk im Bild oder Zeile antippen: der Ist-Wert wird zur neuen Referenz.
+        Gemessen wird im Stehen – seitlich zur Kamera, Blick zur Nose.</p>
+    </section>
+  </main>
+</body>
+</html>

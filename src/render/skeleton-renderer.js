@@ -1,4 +1,4 @@
-import { drawSkeleton } from './draw-skeleton.js';
+import { drawSkeleton, drawStatusSkeleton } from './draw-skeleton.js';
 
 /** @typedef {import('../pose/types.js').PoseFrame} PoseFrame */
 /** @typedef {import('./draw-skeleton.js').SkeletonColors} SkeletonColors */
@@ -55,6 +55,22 @@ export function createSkeletonRenderer(canvas) {
       drawSkeleton(ctx, frame.image, {
         frameWidth: frame.width, frameHeight: frame.height, width: w, height: h, mirror, objectFit,
       }, colors);
+    },
+
+    /**
+     * Thick skeleton with a color per joint (developer page). Returns the view and joint
+     * radius used, so taps can be matched to joints with the same mapping.
+     * @param {PoseFrame | null} frame
+     * @param {{ mirror: boolean }} options
+     * @param {(index: number | 'head') => string} jointColor
+     */
+    drawStatus(frame, { mirror }, jointColor) {
+      const { w, h } = fit();
+      ctx.clearRect(0, 0, w, h);
+      if (!frame) return null;
+      /** @type {import('./draw-skeleton.js').SkeletonView} */
+      const view = { frameWidth: frame.width, frameHeight: frame.height, width: w, height: h, mirror, objectFit: 'cover' };
+      return { view, radius: drawStatusSkeleton(ctx, frame.image, view, colors, jointColor) };
     },
 
     clear() {

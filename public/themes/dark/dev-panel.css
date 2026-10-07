@@ -1,0 +1,55 @@
+.dev-panel {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.dev-panel__table th {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.dev-panel__row td {
+  border-bottom-style: solid;
+  border-bottom-color: var(--color-border);
+}
+
+.dev-panel__row td:first-child {
+  border-left-style: solid;
+  border-left-color: var(--color-border);
+}
+
+.dev-panel__json {
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+}
+
+.dev-panel__current,
+.dev-panel__reference {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+.dev-panel__row[data-status='good'] td:first-child { border-left-color: var(--color-success); }
+.dev-panel__row[data-status='warn'] td:first-child { border-left-color: var(--color-state-running); }
+.dev-panel__row[data-status='bad'] td:first-child { border-left-color: var(--color-danger); }
+.dev-panel__row[data-status='good'] .dev-panel__current { color: var(--color-success); }
+.dev-panel__row[data-status='warn'] .dev-panel__current { color: var(--color-state-running); }
+.dev-panel__row[data-status='bad'] .dev-panel__current { color: var(--color-danger); }
+
+.dev-panel__row[data-own] .dev-panel__reference {
+  text-decoration: underline;
+}
+
+.dev-panel__label,
+.dev-panel__range,
+.dev-panel__hint,
+.dev-panel__model {
+  color: var(--color-text-muted);
+}
+
+.dev-panel__status {
+  font-weight: 600;
+}

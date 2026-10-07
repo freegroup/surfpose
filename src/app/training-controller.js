@@ -11,6 +11,7 @@ import { createEngineClient } from '../engine/engine-client.js';
 import { createRecorder } from '../recording/recorder.js';
 import { createSkeletonRenderer } from '../render/skeleton-renderer.js';
 import { openCamera } from './camera.js';
+import { loadDevCriteria } from './dev-references.js';
 import { createClipsController } from './clips-controller.js';
 import { createDevMetrics } from './dev-metrics.js';
 import { startFrameLoop } from './frame-loop.js';
@@ -43,6 +44,7 @@ export function initTrainingController() {
   const setupHints = initSetupHints($('.setup-hints'));
   const celebration = initCelebration($('.celebration'));
   const skeleton = createSkeletonRenderer(cameraView.canvas);
+  $('.model-badge').hidden = !loadDevCriteria();
 
   /** @type {import('../analysis/reference-profile.js').Profile} */
   let profile = DEFAULT_PROFILE;

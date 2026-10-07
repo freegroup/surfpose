@@ -1,0 +1,7 @@
+/* Fixed strip at the bottom of the training page while the personal model is active. */
+.model-badge {
+  margin: 0;
+  padding: 0.35rem 1rem calc(env(safe-area-inset-bottom) + 0.35rem);
+  font-size: 0.95rem;
+  text-align: center;
+}

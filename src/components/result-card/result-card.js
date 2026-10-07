@@ -61,9 +61,11 @@ export function initResultCard(root) {
         return row;
       }));
 
-      basis.textContent = evaluation.basis.kind === 'references'
-        ? `Verglichen mit deinen ${evaluation.basis.count} Referenz-Clips`
-        : 'Bewertet mit den Startwerten';
+      basis.textContent = {
+        default: 'Bewertet mit den Startwerten',
+        references: `Verglichen mit deinen ${evaluation.basis.count} Referenz-Clips`,
+        developer: 'Bewertet mit deinem persönlichen Referenzmodell',
+      }[evaluation.basis.kind];
     },
   };
 }

@@ -70,11 +70,17 @@ describe('stance evaluation', () => {
   });
 });
 
+/** Reference value of the front knee in a profile (a range criterion). */
+const kneeRef = (/** @type {import('../src/analysis/reference-profile.js').Profile} */ profile) =>
+  /** @type {import('../src/config.js').RangeCriterion} */ (profile.criteria.frontKnee).reference;
+
 describe('reference profile from 🎯 clips', () => {
   const good = measure('stance').values;
 
   it('keeps the starting values with fewer than 3 references', () => {
-    expect(buildProfile([good, good])).toEqual({ references: {}, basis: { kind: 'default', count: 2 } });
+    const profile = buildProfile([good, good]);
+    expect(profile.basis).toEqual({ kind: 'default', count: 2 });
+    expect(kneeRef(profile)).toBe(130);
   });
 
   it('starting values score exactly like the old 110–150° range with 20° falloff', () => {
@@ -89,7 +95,7 @@ describe('reference profile from 🎯 clips', () => {
   it('moves the reference to the median and keeps the ranges', () => {
     const profile = buildProfile([118, 121, 126].map((frontKnee) => ({ ...good, frontKnee })));
     expect(profile.basis).toEqual({ kind: 'references', count: 3 });
-    expect(profile.references.frontKnee).toBe(121);
+    expect(kneeRef(profile)).toBe(121);
     const at = (/** @type {number} */ frontKnee) =>
       byKey(evaluateStance({ ...measure('stance'), values: { ...good, frontKnee } }, profile), 'frontKnee');
     expect(at(121).target).toEqual({ reference: 121, perfectRange: 20 });
@@ -104,13 +110,13 @@ describe('reference profile from 🎯 clips', () => {
 
   it('a single outlier reference barely moves the reference', () => {
     const refs = [118, 120, 121, 122, 124, 158].map((frontKnee) => ({ ...good, frontKnee }));
-    expect(buildProfile(refs).references.frontKnee).toBeLessThan(125);
+    expect(kneeRef(buildProfile(refs))).toBeLessThan(125);
   });
 
   it('never lets references turn straight knees into the standard (guard rails)', () => {
     const stiff = measure('upright').values;
     const profile = buildProfile([stiff, stiff, stiff]);
-    expect(profile.references.frontKnee).toBeLessThanOrEqual(140);
+    expect(kneeRef(profile)).toBeLessThanOrEqual(140);
     const e = evaluateStance(measure('upright'), profile);
     expect(byKey(e, 'frontKnee').status).not.toBe('good');
   });

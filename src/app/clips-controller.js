@@ -1,4 +1,4 @@
-import { buildProfile } from '../analysis/reference-profile.js';
+import { activeProfile } from './dev-references.js';
 import { createClipRecorder } from '../clips/clip-recorder.js';
 import { renderBadge, renderLogo } from '../clips/clip-overlays.js';
 import { listClips, saveClip } from '../clips/clip-store.js';
@@ -64,7 +64,7 @@ export function createClipsController() {
     /** Reference profile from the 🎯 clips stored on this device. @returns {Promise<Profile>} */
     async loadProfile() {
       const clips = await listClips();
-      return buildProfile(
+      return activeProfile(
         clips.filter((c) => c.reference && c.measurement).map((c) => /** @type {StanceMeasurement} */ (c.measurement).values),
       );
     },

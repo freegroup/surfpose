@@ -1,15 +1,17 @@
 import { EVALUATION, STANCE_CRITERIA } from '../config.js';
 import { median } from './geometry.js';
 
+/** @typedef {typeof STANCE_CRITERIA} Criteria */
+
 /**
- * Reference values the evaluation measures around. Empty = starting values from config.
+ * The complete criteria the evaluation scores with, and where they come from.
  * @typedef {object} Profile
- * @property {Record<string, number>} references
- * @property {{ kind: 'default' | 'references', count: number }} basis
+ * @property {Criteria} criteria
+ * @property {{ kind: 'default' | 'references' | 'developer', count: number }} basis
  */
 
 /** @type {Profile} */
-export const DEFAULT_PROFILE = { references: {}, basis: { kind: 'default', count: 0 } };
+export const DEFAULT_PROFILE = { criteria: STANCE_CRITERIA, basis: { kind: 'default', count: 0 } };
 
 /**
  * Moves each criterion's reference value to the median of the 🎯 reference clips, kept inside
@@ -20,17 +22,27 @@ export const DEFAULT_PROFILE = { references: {}, basis: { kind: 'default', count
  */
 export function buildProfile(references) {
   if (references.length < EVALUATION.minReferences) {
-    return { references: {}, basis: { kind: 'default', count: references.length } };
+    return { criteria: STANCE_CRITERIA, basis: { kind: 'default', count: references.length } };
   }
 
-  /** @type {Record<string, number>} */
-  const moved = {};
+  /** @type {Criteria} */
+  const criteria = { ...STANCE_CRITERIA };
   for (const [key, c] of Object.entries(STANCE_CRITERIA)) {
     if (c.kind !== 'range') continue;
     const values = references.map((r) => r[key]).filter((v) => typeof v === 'number');
     if (values.length < EVALUATION.minReferences) continue;
     const [min, max] = c.referenceLimits;
-    moved[key] = Math.min(max, Math.max(min, median(values)));
+    criteria[key] = { ...c, reference: Math.min(max, Math.max(min, median(values))) };
   }
-  return { references: moved, basis: { kind: 'references', count: references.length } };
+  return { criteria, basis: { kind: 'references', count: references.length } };
+}
+
+/**
+ * Personal model from the developer page: a complete criteria object that replaces the
+ * config and the 🎯 clips. Keys it lacks (added to the config later) keep the config values.
+ * @param {Criteria} criteria
+ * @returns {Profile}
+ */
+export function developerProfile(criteria) {
+  return { criteria: { ...STANCE_CRITERIA, ...criteria }, basis: { kind: 'developer', count: 0 } };
 }

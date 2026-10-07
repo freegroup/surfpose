@@ -110,7 +110,7 @@ export function measureStance(frames, run, calib) {
  */
 export function evaluateStance(measurement, profile) {
   /** @type {CriterionResult[]} */
-  const criteria = Object.entries(STANCE_CRITERIA).map(([key, c]) => {
+  const criteria = Object.entries(profile.criteria).map(([key, c]) => {
     const value = measurement.values[key] ?? null;
     const base = { key, label: c.label, value, unit: c.kind === 'range' ? c.unit : '' };
     if (value === null) return { ...base, target: null, score: null, status: 'na', tip: null };
@@ -121,7 +121,7 @@ export function evaluateStance(measurement, profile) {
     }
 
     // within ± perfectRange: 100 · up to ± inRange: falls to 0 · beyond: 0
-    const reference = profile.references[key] ?? c.reference;
+    const { reference } = c;
     const v = /** @type {number} */ (value);
     const off = Math.max(0, Math.abs(v - reference) - c.perfectRange);
     const score = Math.max(0, 100 * (1 - off / (c.inRange - c.perfectRange)));
@@ -131,7 +131,7 @@ export function evaluateStance(measurement, profile) {
     return { ...base, target: { reference, perfectRange: c.perfectRange }, score, status, tip };
   });
 
-  const weight = (/** @type {CriterionResult} */ r) => STANCE_CRITERIA[r.key].weight;
+  const weight = (/** @type {CriterionResult} */ r) => profile.criteria[r.key].weight;
   const rated = criteria.filter((r) => r.score !== null);
   const totalWeight = rated.reduce((sum, r) => sum + weight(r), 0);
   const score = totalWeight

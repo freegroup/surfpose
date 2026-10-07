@@ -67,6 +67,7 @@ export default defineConfig({
         datenschutz: 'datenschutz.html',
         impressum: 'impressum.html',
         'guter-stand': 'guter-stand.html',
+        developer: 'developer.html',
       },
     },
   },

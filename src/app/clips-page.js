@@ -1,6 +1,7 @@
 import { deleteClip, listClips, updateClip } from '../clips/clip-store.js';
 import { shareClip } from '../clips/share.js';
-import { buildProfile } from '../analysis/reference-profile.js';
+import { DEFAULT_PROFILE } from '../analysis/reference-profile.js';
+import { activeProfile } from './dev-references.js';
 import { evaluateStance } from '../analysis/stance-evaluator.js';
 import { initClipGallery } from '../components/clip-gallery/clip-gallery.js';
 import { initClipPlayer } from '../components/clip-player/clip-player.js';
@@ -27,7 +28,7 @@ export function initClipsPage() {
   /** @type {Clip[]} */
   let clips = [];
   /** The same reference profile the live app uses, rebuilt from the 🎯 clips on this device. */
-  let profile = buildProfile([]);
+  let profile = DEFAULT_PROFILE;
   /** @type {Map<string, string>} object URLs per `${id}:${kind}` */
   const urls = new Map();
   /** @type {Clip | null} */
@@ -70,7 +71,7 @@ export function initClipsPage() {
       console.error('Loading clips failed', error);
       status = 'Die Clips konnten nicht geladen werden.';
     }
-    profile = buildProfile(clips.filter((c) => c.reference && c.measurement).map((c) => /** @type {NonNullable<typeof c.measurement>} */ (c.measurement).values));
+    profile = activeProfile(clips.filter((c) => c.reference && c.measurement).map((c) => /** @type {NonNullable<typeof c.measurement>} */ (c.measurement).values));
     const best = $('.clip-gallery__best');
     const fastest = clips.reduce((min, c) => Math.min(min, c.popupSeconds), Infinity);
     best.hidden = !Number.isFinite(fastest);
