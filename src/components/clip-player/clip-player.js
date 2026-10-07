@@ -23,6 +23,8 @@ export function initClipPlayer(root) {
   const reference = $('.clip-player__reference');
   const remove = $('.clip-player__delete');
   const note = $('.clip-player__note');
+  const critique = $('.clip-player__critique');
+  const tips = $('.clip-player__tips');
   const speedButtons = /** @type {HTMLButtonElement[]} */ ([...root.querySelectorAll('.clip-player__speed')]);
 
   /** @type {PlayerClip | null} */
@@ -59,8 +61,8 @@ export function initClipPlayer(root) {
   $('.clip-player__close').addEventListener('click', () => emit('player:close'));
 
   return {
-    /** @param {{ visible: boolean, clip?: PlayerClip | null, note?: string }} state */
-    render({ visible, clip: next = null, note: text = '' }) {
+    /** @param {{ visible: boolean, clip?: PlayerClip | null, note?: string, tips?: string[] | null }} state */
+    render({ visible, clip: next = null, note: text = '', tips: tipList = null }) {
       root.hidden = !visible;
       if (!visible) {
         video.pause();
@@ -80,6 +82,14 @@ export function initClipPlayer(root) {
       /** @type {HTMLButtonElement} */ (reference).disabled = !clip?.canReference;
       note.textContent = text;
       note.hidden = !text;
+      critique.hidden = !tipList;
+      if (tipList) {
+        tips.replaceChildren(...tipList.map((tip) => {
+          const li = document.createElement('li');
+          li.textContent = tip;
+          return li;
+        }));
+      }
     },
   };
 }

@@ -18,3 +18,16 @@
 .clip-player__note {
   color: var(--color-text-muted);
 }
+
+.clip-player__critique-title {
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.clip-player__tips {
+  color: var(--color-text);
+  font-weight: 600;
+}

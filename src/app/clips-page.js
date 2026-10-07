@@ -1,5 +1,7 @@
 import { deleteClip, listClips, updateClip } from '../clips/clip-store.js';
 import { shareClip } from '../clips/share.js';
+import { buildProfile } from '../analysis/reference-profile.js';
+import { evaluateStance } from '../analysis/stance-evaluator.js';
 import { initClipGallery } from '../components/clip-gallery/clip-gallery.js';
 import { initClipPlayer } from '../components/clip-player/clip-player.js';
 import { initPageChrome } from './page-chrome.js';
@@ -22,6 +24,8 @@ export function initClipsPage() {
 
   /** @type {Clip[]} */
   let clips = [];
+  /** The same reference profile the live app uses, rebuilt from the 🎯 clips on this device. */
+  let profile = buildProfile([]);
   /** @type {Map<string, string>} object URLs per `${id}:${kind}` */
   const urls = new Map();
   /** @type {Clip | null} */
@@ -64,6 +68,7 @@ export function initClipsPage() {
       console.error('Loading clips failed', error);
       status = 'Die Clips konnten nicht geladen werden.';
     }
+    profile = buildProfile(clips.filter((c) => c.reference && c.measurement).map((c) => /** @type {NonNullable<typeof c.measurement>} */ (c.measurement).values));
     for (const [key, objectUrl] of urls) {
       if (!clips.some((c) => key.startsWith(`${c.id}:`))) {
         URL.revokeObjectURL(objectUrl);
@@ -94,9 +99,12 @@ export function initClipsPage() {
     open = clips.find((c) => c.id === open?.id) ?? null;
     if (!open) return;
     const referenceNote = canReference(open) ? '' : 'Als Referenz nicht möglich – die Stance war in diesem Clip nicht gut genug sichtbar.';
+    const evaluation = open.measurement ? evaluateStance(open.measurement, profile) : null;
+    const tips = evaluation ? (evaluation.tips.length ? evaluation.tips : ['Sauberer Stand – weiter so!']) : null;
     player.render({
       visible: true,
       note: note || referenceNote,
+      tips,
       clip: {
         id: open.id, url: /** @type {string} */ (url(open, 'video')), standOffset: open.standOffset,
         cool: open.cool, reference: open.reference, canReference: canReference(open),
