@@ -1,0 +1,45 @@
+/* Label + (?) icon; the tooltip shows while the icon is hovered or focused. Colors in the skin. */
+.annotated-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.annotated-label__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3em;
+  height: 1.3em;
+  padding: 0;
+  border-width: 0;
+  font-size: 0.8em;
+  line-height: 1;
+  cursor: help;
+}
+
+.annotated-label__tip {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 20;
+  width: max-content;
+  max-width: 18rem;
+  padding: 0.55rem 0.75rem;
+  border-width: 1px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  white-space: normal;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.annotated-label[data-align='end'] .annotated-label__tip {
+  right: 0;
+  left: auto;
+}
+
+.annotated-label:has(.annotated-label__icon:hover, .annotated-label__icon:focus) .annotated-label__tip {
+  visibility: visible;
+}

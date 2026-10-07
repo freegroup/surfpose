@@ -32,7 +32,14 @@
       <p class="dev-panel__status" role="status" hidden></p>
       <table class="dev-panel__table">
         <thead>
-          <tr><th>Key</th><th title="Wie du gerade stehst">Ist</th><th title="Dein persönlicher Wert – gilt statt der Referenz">Soll</th><th title="Fester Wert aus config.js">Referenz</th><th>Spielraum</th><th><span class="visually-hidden">Zurücksetzen</span></th></tr>
+          <tr>
+            <th><span class="annotated-label" data-help="Name des Kriteriums in STANCE_CRITERIA (src/config.js), darunter die Bezeichnung. Zeile antippen: der Ist-Wert wird zum Soll.">Key</span></th>
+            <th><span class="annotated-label" data-help="Wie du gerade stehst – live gemessen über die letzte Sekunde. Grün = perfekt, Gelb = noch ok, Rot = außerhalb. Gemessen wird im Stehen: seitlich zur Kamera, Blick zur Nose.">Ist</span></th>
+            <th><span class="annotated-label" data-help="Dein persönlicher Wert. Gelenk oder Zeile antippen übernimmt den Ist-Wert, „Als Referenz festlegen“ speichert ihn. Ist ein Soll gesetzt, wird damit verglichen. Der Kreispfeil entfernt ihn. „–“ = kein Soll gesetzt.">Soll</span></th>
+            <th><span class="annotated-label" data-help="Fester Wert aus src/config.js. Mit ihm wird verglichen, solange du kein Soll gesetzt hast.">Referenz</span></th>
+            <th><span class="annotated-label" data-help="± perfekt / ± ok um den Vergleichswert: innerhalb ± perfekt gibt es 100 Punkte (grün), bis ± ok sinken die Punkte (gelb), darüber 0 (rot).">Spielraum</span></th>
+            <th><span class="visually-hidden">Zurücksetzen</span></th>
+          </tr>
         </thead>
         <tbody class="dev-panel__rows"></tbody>
       </table>
@@ -50,10 +57,6 @@
           </td>
         </tr>
       </template>
-      <p class="dev-panel__hint"><b>Ist</b> = wie du gerade stehst · <b>Soll</b> = dein persönlicher Wert, den du
-        übernommen bzw. gespeichert hast (sonst „–") · <b>Referenz</b> = fester Wert aus config.js.
-        Verglichen wird mit dem Soll, ohne Soll mit der Referenz. Gelenk im Bild oder Zeile antippen: der Ist-Wert
-        wird zum Soll. Der Kreispfeil entfernt dein Soll. Gemessen wird im Stehen – seitlich zur Kamera, Blick zur Nose.</p>
     </section>
   </main>
 </body>

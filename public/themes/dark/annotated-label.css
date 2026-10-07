@@ -1,0 +1,23 @@
+/* (?) in the tint color; the tooltip never inherits the heading style it sits in */
+.annotated-label__icon {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: normal;
+}
+
+.annotated-label__tip {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-style: solid;
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: normal;
+  text-transform: none;
+}

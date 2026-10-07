@@ -5,6 +5,7 @@ import { calibrateStanding } from '../analysis/board-axis.js';
 import { extractStanceFeatures } from '../analysis/features.js';
 import { developerProfile } from '../analysis/reference-profile.js';
 import { evaluateStance, measureStance } from '../analysis/stance-evaluator.js';
+import { initAnnotatedLabels } from '../components/annotated-label/annotated-label.js';
 import { initCameraView } from '../components/camera-view/camera-view.js';
 import { initDevPanel } from '../components/dev-panel/dev-panel.js';
 import { MIN_VISIBILITY, STANCE_CRITERIA, STAND_MODE } from '../config.js';
@@ -68,6 +69,7 @@ const $ = (selector) => /** @type {HTMLElement} */ (document.querySelector(selec
 export function initDeveloperController() {
   initPageChrome();
   if (!matchMedia(LAPTOP).matches) return; // mobile: only the notice, no camera, no permission prompt
+  initAnnotatedLabels();
   const cameraView = initCameraView($('.camera-view'));
   const panel = initDevPanel($('.dev-panel'));
   const skeleton = createSkeletonRenderer(cameraView.canvas);

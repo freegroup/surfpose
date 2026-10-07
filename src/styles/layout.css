@@ -16,5 +16,6 @@
 @import '../components/theme-switch/theme-switch.css';
 @import '../components/clip-gallery/clip-gallery.css';
 @import '../components/clip-player/clip-player.css';
+@import '../components/annotated-label/annotated-label.css';
 @import '../components/dev-panel/dev-panel.css';
 @import '../components/model-badge/model-badge.css';

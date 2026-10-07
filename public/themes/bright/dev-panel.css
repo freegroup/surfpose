@@ -44,7 +44,6 @@
 .dev-panel__label,
 .dev-panel__reference,
 .dev-panel__range,
-.dev-panel__hint,
 .dev-panel__model {
   color: var(--color-text-muted);
 }
