@@ -203,14 +203,14 @@ export function initDeveloperController() {
   document.addEventListener('dev:save', () => {
     saveDevCriteria(working);
     stored = structuredClone(working);
-    message = 'Gespeichert – Training und Clips bewerten jetzt mit deinem Modell.';
+    message = 'Als Referenz festgelegt – Training und Clips bewerten jetzt mit deinem Modell.';
     renderPanel();
   });
   document.addEventListener('dev:clear', () => {
     clearDevCriteria();
     stored = null;
     working = structuredClone(STANCE_CRITERIA);
-    message = 'Gelöscht – es gelten wieder die Startwerte aus config.js.';
+    message = 'Standard hergestellt – es gelten wieder die Startwerte aus config.js.';
     renderPanel();
   });
 
